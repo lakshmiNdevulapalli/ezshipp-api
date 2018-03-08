@@ -32,6 +32,7 @@ import static com.ezshipp.api.util.QueryUtil.getTodayQuery;
  */
 @Service
 public class OrderService {
+
     @Inject
     OrderRepository orderRepository;
 
