@@ -23,8 +23,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.ezshipp.api.util.OrderStatusUtil.getStatus;
-import static com.ezshipp.api.util.OrderStatusUtil.isZoned;
+import static com.ezshipp.api.util.OrderStatusUtil.*;
 import static com.ezshipp.api.util.QueryUtil.getTodayQuery;
 
 /**
@@ -46,11 +45,21 @@ public class OrderService {
         Query query = getTodayQuery();
         query.with(new Sort(new Sort.Order
                 (Sort.Direction.DESC, "Date")));
-        query.limit(200);
+        query.limit(300);
 
         List<Order> orderList = mongoTemplate.find(query, Order.class, "Orders");
         applyStatus(orderList);
         setDriverData(orderList);
+        return orderList;
+    }
+
+    public List<Order> findAllOrders(OrderTypeEnum typeEnum)    {
+        List<Order> orderList = findAllOrders();
+        orderList = orderList.stream()
+                .filter(o -> o.getBookingType() == typeEnum.ordinal())
+                .filter(o -> isNew(o.getStatus()) || isOngoing(o.getStatus()))
+                .collect(Collectors.toList());
+
         return orderList;
     }
 
@@ -66,9 +75,11 @@ public class OrderService {
                 Criteria.where("customerName").is(customerName));
         Query query = new Query(criteria);
 
-        return centralPublicationOrders(false).getDocumentList();
-
-        //return mongoTemplate.find(query, Order.class, "Orders");
+        //return centralPublicationOrders(false).getDocumentList();
+        List<Order> orders = mongoTemplate.find(query, Order.class, "Orders");
+        setDriverData(orders);
+        applyStatus(orders);
+        return orders;
     }
 
     public OrderResponse pendingOrders(boolean onlyCount)    {
@@ -143,10 +154,10 @@ public class OrderService {
                 zonedOrderCount++;
             }
         }
-        assignedOrders.stream().collect(Collectors.groupingBy(s -> s.getBikerName()))
-                .forEach((k, v) -> System.out.println(k+"["+v.size() +  "]"));
-
-        assignedOrders.stream().collect(Collectors.groupingBy(s -> s.getBikerName()))
-                .forEach((k, v) -> System.out.println(k+"["+v.size() +  "]"));
+//        assignedOrders.stream().collect(Collectors.groupingBy(s -> s.getBikerName()))
+//                .forEach((k, v) -> System.out.println(k+"["+v.size() +  "]"));
+//
+//        assignedOrders.stream().collect(Collectors.groupingBy(s -> s.getBikerName()))
+//                .forEach((k, v) -> System.out.println(k+"["+v.size() +  "]"));
     }
 }

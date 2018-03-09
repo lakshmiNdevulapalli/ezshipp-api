@@ -23,7 +23,8 @@ public class Order {
 
     String order_datetime;
     int orderType;
-    String bookingType;
+    int bookingType;
+    String bookingTypeStr;
     String pickAddress;
     String receiverName;
     String receiverPhone;

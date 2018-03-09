@@ -39,8 +39,8 @@ public class QueryUtil {
     public static Query getPastDayQuery() {
         Calendar todayMidnight = Calendar.getInstance();
         todayMidnight.setTimeZone(TimeZone.getTimeZone("Asia/Calcutta"));
-        todayMidnight.set(Calendar.MONTH, Calendar.FEBRUARY);
-        todayMidnight.set(Calendar.DAY_OF_MONTH, 28);
+        todayMidnight.set(Calendar.MONTH, Calendar.MARCH);
+        todayMidnight.set(Calendar.DAY_OF_MONTH, 8);
         todayMidnight.set(Calendar.HOUR_OF_DAY, 00);
         todayMidnight.set(Calendar.MINUTE, 01);
         todayMidnight.set(Calendar.SECOND, 01);

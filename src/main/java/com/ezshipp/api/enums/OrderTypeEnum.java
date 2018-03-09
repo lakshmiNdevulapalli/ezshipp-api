@@ -5,7 +5,7 @@ package com.ezshipp.api.enums;
  */
 public enum OrderTypeEnum {
     NA,
-    SAMEDAY,
+    INSTANT,
     FOURHOURS,
-    INSTANT
+    SAMEDAY;
 }

@@ -28,6 +28,10 @@ public class OrderStatusUtil {
         return (status == OrderStatusEnum.CANCELLED.getStatusId());
     }
 
+    public static boolean isAccepted(int status) {
+        return (status == OrderStatusEnum.BIKER_ACCEPTED.getStatusId());
+    }
+
     public static boolean isZoned(int status) {
         return (status == OrderStatusEnum.DROP_AT_ZONE.getStatusId());
     }

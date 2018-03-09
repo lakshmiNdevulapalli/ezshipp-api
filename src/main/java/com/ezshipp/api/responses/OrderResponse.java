@@ -54,8 +54,8 @@ public class OrderResponse {
     private List<Order> documentList;
     private List<Order> zonalDocumentList;
 
-    public List<Order> getDocumentsByType(long type) {
-        return documentList.stream().filter(o -> o.getBookingType().equals(Long.toString(type))).collect(Collectors.toList());
+    public List<Order> getDocumentsByType(int type) {
+        return documentList.stream().filter(o -> o.getBookingType() == type).collect(Collectors.toList());
     }
 
     public void setCounts()    {

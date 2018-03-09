@@ -1,8 +1,6 @@
 package com.ezshipp.api.poi;
 
 import com.ezshipp.api.document.Order;
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -16,14 +14,13 @@ import java.util.List;
 
 public class ExcelGeneratorChild extends ExcelGenerator<Order>{
 
-	private static final Logger logger = LogManager.getLogger(ExcelGeneratorChild.class.getName());
+	//private static final Logger logger = LogManager.getLogger(ExcelGeneratorChild.class.getName());
 
 	public Workbook createXLS(String reportName, List<Order> modelData){
 		File file = null;
 		XSSFWorkbook workbook = new XSSFWorkbook();
 
 		try {
-
 
 			XSSFSheet xSSFSheet = workbook.createSheet("Sheet 1");
 			XSSFSheet xSSFSheet2 = workbook.createSheet("Sheet 2");
@@ -49,8 +46,8 @@ public class ExcelGeneratorChild extends ExcelGenerator<Order>{
 
 		}
 		catch (Exception e) {
-
-			logger.error("Error generating excel report:\n", e);
+			e.printStackTrace();
+			//logger.error("Error generating excel report:\n", e);
 		}
 
 		return workbook;
