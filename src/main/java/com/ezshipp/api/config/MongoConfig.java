@@ -1,7 +1,6 @@
 package com.ezshipp.api.config;
 
-import com.mongodb.Mongo;
-import com.mongodb.MongoURI;
+import com.mongodb.MongoClient;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
@@ -40,11 +39,11 @@ public class MongoConfig extends AbstractMongoConfiguration {
     @Value("${mongo.db}")
     private String databaseName;
 
-
-    @Override
-    public Mongo mongo() throws Exception {
-        return new Mongo(new MongoURI(url));
-    }
+//
+//    @Override
+//    public Mongo mongo() throws Exception {
+//        return new Mongo(new MongoURI(url));
+//    }
 
 
     @Override
@@ -54,4 +53,8 @@ public class MongoConfig extends AbstractMongoConfiguration {
         return new CustomConversions(converters);
     }
 
+    @Override
+    public MongoClient mongoClient() {
+        return new MongoClient(url);
+    }
 }

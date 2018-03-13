@@ -48,7 +48,8 @@ public class OrderController implements ControllerConstants {
 
     @RequestMapping(method=RequestMethod.GET, value="/{id}")
     public Order show(@PathVariable String id) {
-        return orderRepository.findOne(id);
+
+        return orderRepository.findById(id).get();
     }
 
     @RequestMapping(method=RequestMethod.GET, value="/find/{orderId}")
@@ -93,7 +94,7 @@ public class OrderController implements ControllerConstants {
 
     @RequestMapping(method=RequestMethod.PUT, value="/{id}")
     public Order update(@PathVariable String id, @RequestBody Order order) {
-        Order existingOrder = orderRepository.findOne(id);
+        Order existingOrder = orderRepository.findById(id).get();
         existingOrder.setOrderseqId(order.getOrderseqId());
         existingOrder.setOrder_datetime(order.getOrder_datetime());
         existingOrder.setStatus(order.getStatus());
@@ -108,7 +109,7 @@ public class OrderController implements ControllerConstants {
 
     @RequestMapping(method=RequestMethod.DELETE, value="/{id}")
     public String delete(@PathVariable String id) {
-        Order order = orderRepository.findOne(id);
+        Order order = orderRepository.findById(id).get();
         orderRepository.delete(order);
 
         return "order deleted";

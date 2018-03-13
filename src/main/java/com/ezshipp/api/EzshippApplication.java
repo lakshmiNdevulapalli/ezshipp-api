@@ -6,7 +6,6 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication
 @EnableScheduling
-//@EnableSwagger2
 //@ComponentScan(basePackages = {"com.ezshipp.api.controllers"})
 public class EzshippApplication {
 

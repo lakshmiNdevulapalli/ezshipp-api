@@ -33,12 +33,12 @@ public class CustomerController implements ControllerConstants {
 
     @RequestMapping(method=RequestMethod.GET, value="/customers/{id}")
     public Customer show(@PathVariable String id) {
-        return customerRepository.findOne(id);
+        return customerRepository.findById(id).get();
     }
 
     @RequestMapping(method=RequestMethod.PUT, value="/customers/{id}")
     public Customer update(@PathVariable String id, @RequestBody Customer customer) {
-        Customer c = customerRepository.findOne(id);
+        Customer c = customerRepository.findById(id).get();
 //        if(customer.getProdName() != null)
 //            c.setProdName(customer.getProdName());
 //        if(customer.getProdDesc() != null)
@@ -53,7 +53,7 @@ public class CustomerController implements ControllerConstants {
 
     @RequestMapping(method=RequestMethod.DELETE, value="/customers/{id}")
     public String delete(@PathVariable String id) {
-        Customer customer = customerRepository.findOne(id);
+        Customer customer = customerRepository.findById(id).get();
         customerRepository.delete(customer);
 
         return "customer deleted";

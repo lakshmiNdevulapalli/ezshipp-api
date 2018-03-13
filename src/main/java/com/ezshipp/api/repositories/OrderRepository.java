@@ -11,7 +11,7 @@ import java.util.Optional;
 /**
  * Created by srinivasseri on 2/3/18.
  */
-public interface OrderRepository extends MongoRepository<Order, String>{
+public interface OrderRepository extends MongoRepository<Order, String> {
     /**
      * <p>findByTitle.</p>
      *

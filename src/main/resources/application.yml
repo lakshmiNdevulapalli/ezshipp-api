@@ -1,6 +1,7 @@
 mongo:
   #url: mongodb://ezshipptesting:ezshipptesting@betadb.ezshipp.com:1234
-  url: mongodb://ezshippDBA:ezshippevontex@db.ezshipp.com:1234
+  #url: mongodb://ezshippDBA:ezshippevontex@db.ezshipp.com:1234
+  url: mongodb://ezshippDBA:ezshippevontex@db.ezshipp.com:1234/ezshipp?replicaSet=ezshipp
   db:
 
   #"prodDB": "mongodb://ezshippDBA:ezshippevontex@db.ezshipp.com:1234/ezshipp?replicaSet=ezshipp",

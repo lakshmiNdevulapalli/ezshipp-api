@@ -11,12 +11,12 @@ import java.util.List;
  */
 public class SlackUtil {
 
+    public static final String EZSHIPP_SLACK_URL = "https://hooks.slack.com/services/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";
     public static final String PENDING_INSTANT_CHANNEL = "#pending-instant";
     public static final String PENDING_FOUR_HOUR_CHANNEL = "#pending-fourhours";
 
     public static void sendSlackMessage(String message, String channel, Order order) {
-        String url = "https://hooks.slack.com/services/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";
-        SlackApi api = new SlackApi(url);
+        SlackApi api = new SlackApi(EZSHIPP_SLACK_URL);
         SlackMessage slackMessage = new SlackMessage(channel, "ops-admin", message);
         slackMessage.setIcon(":boom:");
         SlackAttachment slackAttachment = new SlackAttachment();
@@ -26,7 +26,7 @@ public class SlackUtil {
         slackAttachment.setCallbackId("srinivas");
         SlackField slackField = new SlackField();
         slackField.setTitle(order.getOrderseqId());
-        if (!order.getBikerName().isEmpty()) {
+        if (order != null && order.getBikerName() != null) {
             slackField.setValue(order.getBikerName() + "[" + order.getBikerPhone() + "]");
         } else  {
             slackField.setValue("*No Biker assigned yet.*");
