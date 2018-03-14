@@ -15,7 +15,7 @@ apply plugin: 'io.spring.dependency-management'
 
 
 bootJar {
-    baseName = 'ezshipp-api '
+    baseName = 'ezshipp-api-service'
     version = '0.1.1'
 }
 
@@ -36,7 +36,10 @@ dependencies {
     compile "io.springfox:springfox-swagger-ui:2.6.1"
     compile("org.springframework.boot:spring-boot-starter-security")
     compile("org.springframework.boot:spring-boot-starter-data-rest")
-    compile("org.springframework.boot:spring-boot-starter-data-mongodb")
+    //compile("org.springframework.boot:spring-boot-starter-data-mongodb")
+    // https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-data-mongodb-reactive
+    compile group: 'org.springframework.boot', name: 'spring-boot-starter-data-mongodb-reactive', version: '2.0.0.RELEASE'
+
     compile("org.springframework.boot:spring-boot-starter-data-redis")
     compile('org.apache.commons:commons-lang3:3.0')
     compile('org.apache.poi:poi:3.11')
@@ -45,7 +48,6 @@ dependencies {
     compile('com.itextpdf:itextpdf:5.5.10')
     compile group: 'org.apache.commons', name: 'commons-io', version: '1.3.2'
     compile group: 'net.gpedro.integrations.slack', name: 'slack-webhook', version: '1.4.0'
-//    compile group: 'org.springframework', name: 'spring-context', version: '3.0.2.RELEASE'
 
 
     //compile('com.fasterxml.jackson.core:jackson-annotations:2.5.0')
@@ -62,7 +64,7 @@ dependencies {
     //compile('redis.clients:jedis:2.7.2')
 
     testCompile("org.springframework.boot:spring-boot-starter-test")
-    //testCompile group: 'org.slf4j', name: 'slf4j-simple', version: '1.6.1'
+    testCompile group: 'org.slf4j', name: 'slf4j-simple', version: '1.6.1'
 
 }
 

@@ -1,11 +1,11 @@
 package com.ezshipp.api.config;
 
 import com.mongodb.MongoClient;
+import com.mongodb.MongoClientURI;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.data.mongodb.config.AbstractMongoConfiguration;
-import org.springframework.data.mongodb.core.convert.CustomConversions;
 import org.springframework.data.mongodb.core.convert.DefaultMongoTypeMapper;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
 
@@ -25,36 +25,19 @@ public class MongoConfig extends AbstractMongoConfiguration {
 
     @Override
     protected String getDatabaseName() {
-        return "ezshipp";
+        return databaseName;
     }
 
-//    @Override
-//    public Mongo mongo() throws Exception {
-//        return new MongoClient("127.0.0.1", 27017);
-//    }
-
-    @Value("${mongo.url}")
-    private String url;
+    @Value("${mongo.uri}")
+    private String uri;
 
     @Value("${mongo.db}")
     private String databaseName;
 
-//
-//    @Override
-//    public Mongo mongo() throws Exception {
-//        return new Mongo(new MongoURI(url));
-//    }
-
-
-    @Override
-    public CustomConversions customConversions() {
-        //converters.add(new OrderWriterConverter());
-        converters.add(new DefaultMongoTypeMapper(null));
-        return new CustomConversions(converters);
-    }
-
     @Override
     public MongoClient mongoClient() {
-        return new MongoClient(url);
+        System.out.println("******************************************URL: " + uri);
+        return new MongoClient(new MongoClientURI(uri));
     }
+
 }
