@@ -1,23 +1,20 @@
-package com.ezshipp.api.scheduler;
+package com.ezshipp.api.scheduler.order;
 
 import com.ezshipp.api.document.Order;
 import com.ezshipp.api.enums.OrderTypeEnum;
-import com.ezshipp.api.poi.ExcelGeneratorChild;
 import com.ezshipp.api.service.EmailService;
 import com.ezshipp.api.service.OrderService;
 import com.ezshipp.api.util.SlackUtil;
-import org.apache.poi.ss.usermodel.Workbook;
-import org.springframework.scheduling.annotation.Scheduled;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import javax.inject.Inject;
-import java.io.FileOutputStream;
 import java.text.SimpleDateFormat;
 import java.time.Duration;
 import java.time.LocalTime;
 import java.util.Date;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static com.ezshipp.api.util.OrderStatusUtil.*;
 import static com.ezshipp.api.util.SlackUtil.PENDING_FOUR_HOUR_CHANNEL;
@@ -29,13 +26,15 @@ import static com.ezshipp.api.util.SlackUtil.PENDING_INSTANT_CHANNEL;
 @Component
 public class OrderScheduleTasks {
 
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
     @Inject
     private OrderService orderService;
 
     @Inject
     private EmailService emailService;
 
-    @Scheduled(fixedRate = 600000) //10mins
+    //@Scheduled(fixedRate = 600000) //10mins
     public void slackInstantOrders() throws Exception {
         //log.info("The time is now {}", dateFormat.format(new Date()));
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -63,7 +62,7 @@ public class OrderScheduleTasks {
         }
     }
 
-    @Scheduled(fixedRate = 1200000) //20mins
+    //@Scheduled(fixedRate = 1200000) //20mins
     public void slackFourHourOrders() throws Exception {
         //log.info("The time is now {}", dateFormat.format(new Date()));
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -96,16 +95,20 @@ public class OrderScheduleTasks {
     //@Scheduled(fixedRate = 1500000)
     public void sendVijayaOrders() throws Exception {
         //log.info("The time is now {}", dateFormat.format(new Date()));
-        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        List<Order> orders = orderService.findByCustomerNameOrNumber("Vij-diag- Lal Bunglow", "9000552691");
-        orders = orders.stream().filter(o -> !isCompleted(o.getStatus())).collect(Collectors.toList());
-        Workbook workbook = new ExcelGeneratorChild().createXLS("vijaya-orders", orders);
-        Date now = new Date();
-        FileOutputStream out = new FileOutputStream("vijaya-pending-orders.xlsx");
-        workbook.write(out);
-        out.close();
+//        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+//        List<Order> orders = orderService.findByCustomerNameOrNumber("Vij-diag- Lal Bunglow", "9000552691");
+//        orders = orders.stream().filter(o -> !isCompleted(o.getStatus())).collect(Collectors.toList());
+//        Workbook workbook = new ExcelGenerator().createXLS("vijaya-orders", orders);
+//        Date now = new Date();
+//        FileOutputStream out = new FileOutputStream("vijaya-pending-orders.xlsx");
+//        workbook.write(out);
+//        out.close();
 
     }
+
+    //@Scheduled(cron = "0 57 23 * * *") // 1:30PM
+
+
 
     private String constructMessage(long diff, Order order)   {
         long diffMinutes = diff / (60 * 1000);

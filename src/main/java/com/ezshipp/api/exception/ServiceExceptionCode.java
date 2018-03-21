@@ -99,7 +99,7 @@ public enum ServiceExceptionCode {
     DISTRIBUTOR_SERVICE_UNAVAILABLE("214"),
 
     /** The EMAIL FOLIO PMS service not available. */
-    EMAIL_FOLIO_PMS_SERVICE_UNAVAILABLE("505"),
+    EMAIL_FAILURE("505"),
 
     /** The email parsing. */
     EMAIL_PARSING("198"),

@@ -118,8 +118,13 @@ public class Order {
     //double totalAmount;
 
     String userId;
+    String admin_comment;
 
     List<EventLog> eventLog;
+
+    boolean onTimeDelivered;
+    String orderCompletionTime;
+    String orderlapseTime;
 
 
 

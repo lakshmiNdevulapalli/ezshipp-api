@@ -3,7 +3,7 @@ package com.ezshipp.api.enums;
 /**
  * Created by srinivasseri on 2/3/18.
  */
-public enum OrderStatusEnum {
+public enum     OrderStatusEnum {
     NA(0, "NO"),
     NEW(1, "New"),
     PICKED_UP(4, "Picked"),

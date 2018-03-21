@@ -25,6 +25,14 @@ public class OrderResponse {
     private long fourHoursCount;
     private long sameDayCount;
 
+    private long instantOngoingCount;
+    private long fourHoursOngoingCount;
+    private long sameDayOngoingCount;
+
+    private long instantCompletedCount;
+    private long fourHoursCompletedCount;
+    private long sameDayCompletedCount;
+
     private long deletedCount;
     private long cancelledCount;
     private long completedCount;
@@ -45,6 +53,9 @@ public class OrderResponse {
     private Map<String, List<Order>> clientOrders = new HashMap<>();
     private List<ClientOrder> clientOrderList = new ArrayList<>();
     private Map<String, Long> zonalCount = new HashMap<>();
+    private Map<String, Long> zonalInstantCount = new HashMap<>();
+    private Map<String, Long> zonalFourHoursCount = new HashMap<>();
+    private Map<String, Long> zonalSameDayCount = new HashMap<>();
     private List<Zone> zonalList = new ArrayList<>();
 
     private List<Order> completedOrderList = new ArrayList<>();
@@ -69,6 +80,20 @@ public class OrderResponse {
         fourHoursCount = getDocumentsByType(OrderTypeEnum.FOURHOURS.ordinal()).size();
         instantCount = getDocumentsByType(OrderTypeEnum.INSTANT.ordinal()).size();
         deletedCount = documentList.stream().filter(o -> o.isWhether_Deleted() == true).count();
+
+        sameDayOngoingCount = getDocumentsByType(OrderTypeEnum.SAMEDAY.ordinal()).stream()
+                                          .filter(o -> isOngoing(o.getStatus())).collect(Collectors.toList()).size();
+        instantOngoingCount = getDocumentsByType(OrderTypeEnum.INSTANT.ordinal()).stream()
+                .filter(o -> isOngoing(o.getStatus())).collect(Collectors.toList()).size();
+        fourHoursOngoingCount = getDocumentsByType(OrderTypeEnum.FOURHOURS.ordinal()).stream()
+                .filter(o -> isOngoing(o.getStatus())).collect(Collectors.toList()).size();
+
+        sameDayCompletedCount = getDocumentsByType(OrderTypeEnum.SAMEDAY.ordinal()).stream()
+                .filter(o -> isCompleted(o.getStatus())).collect(Collectors.toList()).size();
+        instantCompletedCount = getDocumentsByType(OrderTypeEnum.INSTANT.ordinal()).stream()
+                .filter(o -> isCompleted(o.getStatus())).collect(Collectors.toList()).size();
+        fourHoursCompletedCount = getDocumentsByType(OrderTypeEnum.FOURHOURS.ordinal()).stream()
+                .filter(o -> isCompleted(o.getStatus())).collect(Collectors.toList()).size();
 
         newOrderList = documentList.stream().filter(o -> isNew(o.getStatus())).collect(Collectors.toList());
         newCount = newOrderList.size();
@@ -121,13 +146,15 @@ public class OrderResponse {
 
         totalCount = totalCount - cancelledCount;
 
-        applyZoneCount();
+        applyZoneCount(getDocumentsByType(OrderTypeEnum.SAMEDAY.ordinal()), zonalSameDayCount);
+        applyZoneCount(getDocumentsByType(OrderTypeEnum.INSTANT.ordinal()), zonalInstantCount);
+        applyZoneCount(getDocumentsByType(OrderTypeEnum.FOURHOURS.ordinal()), zonalFourHoursCount);
 
         fetchClientOrders();
     }
 
-    private void applyZoneCount() {
-        for (Order o : documentList) {
+    private void applyZoneCount(List<Order> orders, Map<String, Long> zonalCount) {
+        for (Order o : orders) {
             if (!zonalCount.containsKey(o.getPickupdeponame()) || !zonalCount.containsKey(o.getDeliverydeponame()))  {
                 zonalCount.put(zonalCount.containsKey(o.getPickupdeponame())?o.getDeliverydeponame() : o.getPickupdeponame(), 0L);
             }
@@ -142,17 +169,17 @@ public class OrderResponse {
             }
         }
 
-        zonalCount =
-                documentList.stream()
-                        .filter(o -> !(isCancelled(o.getStatus())))
-                        .collect(Collectors.groupingBy(Order::getPickupdeponame, Collectors.counting()));
-        System.out.println(zonalCount);
-        zonalCount.clear();
-        zonalCount =
-                documentList.stream()
-                        .filter(o -> !(isCancelled(o.getStatus())))
-                        .collect(Collectors.groupingBy(Order::getDeliverydeponame, Collectors.counting()));
-        System.out.println(zonalCount);
+//        zonalCount =
+//                documentList.stream()
+//                        .filter(o -> !(isCancelled(o.getStatus())))
+//                        .collect(Collectors.groupingBy(Order::getPickupdeponame, Collectors.counting()));
+//        System.out.println(zonalCount);
+//        zonalCount.clear();
+//        zonalCount =
+//                documentList.stream()
+//                        .filter(o -> !(isCancelled(o.getStatus())))
+//                        .collect(Collectors.groupingBy(Order::getDeliverydeponame, Collectors.counting()));
+//        System.out.println(zonalCount);
     }
 
 

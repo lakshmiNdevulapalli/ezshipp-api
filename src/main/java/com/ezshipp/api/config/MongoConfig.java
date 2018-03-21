@@ -4,7 +4,6 @@ import com.mongodb.MongoClient;
 import com.mongodb.MongoClientURI;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Profile;
 import org.springframework.data.mongodb.config.AbstractMongoConfiguration;
 import org.springframework.data.mongodb.core.convert.DefaultMongoTypeMapper;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
@@ -17,7 +16,6 @@ import java.util.List;
 /**
  * Created by srinivasseri on 2/6/18.
  */
-@Profile("default")
 @Configuration
 @EnableMongoRepositories(basePackages = "com.ezshipp.api.repositories")
 public class MongoConfig extends AbstractMongoConfiguration {
@@ -28,11 +26,10 @@ public class MongoConfig extends AbstractMongoConfiguration {
         return databaseName;
     }
 
-    @Value("${mongo.uri}")
-    private String uri;
+    private @Value("${spring.data.mongodb.uri}") String uri;
 
-    @Value("${mongo.db}")
-    private String databaseName;
+    private @Value("${spring.data.mongodb.db}") String databaseName;
+
 
     @Override
     public MongoClient mongoClient() {

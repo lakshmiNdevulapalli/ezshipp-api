@@ -12,7 +12,6 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
 import javax.inject.Inject;
@@ -34,10 +33,9 @@ public class OrderController implements ControllerConstants {
     @Inject
     OrderService orderService;
 
-    @GetMapping(value="/orders",  produces= MediaType.APPLICATION_JSON_VALUE)
-    public  List<Order> getAllOrders() {
+    @RequestMapping(method=RequestMethod.GET)
+    public List<Order> getAllOrders() {
         return orderService.findAllOrders();
-        //return new ResponseEntity<List<MiniOrder>>(orderList, HttpStatus.OK);
     }
 
     @RequestMapping(method= RequestMethod.POST)
@@ -48,7 +46,6 @@ public class OrderController implements ControllerConstants {
 
     @RequestMapping(method=RequestMethod.GET, value="/{id}")
     public Order show(@PathVariable String id) {
-
         return orderRepository.findById(id).get();
     }
 
