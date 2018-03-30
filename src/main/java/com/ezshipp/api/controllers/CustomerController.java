@@ -11,8 +11,8 @@ import javax.inject.Inject;
  * Created by srinivasseri on 2/4/18.
  */
 @RestController
-@Api(value = "/api/customers", description = "a rest service")
-@RequestMapping(path = "/api/customers")
+@Api(value = "/api/v1/customers", description = "a rest service")
+@RequestMapping(path = "/api/v1/customers")
 @CrossOrigin(origins = "http://localhost:4200", maxAge = 3600)
 public class CustomerController implements ControllerConstants {
     @Inject

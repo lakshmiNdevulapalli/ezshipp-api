@@ -21,8 +21,8 @@ import java.util.List;
  * Created by srinivasseri on 2/4/18.
  */
 @RestController
-@Api(value = "/api/orders", description = "a rest service")
-@RequestMapping(path = "/api/orders")
+@Api(value = "/api/v1/orders", description = "a rest service")
+@RequestMapping(path = "/api/v1/orders")
 @CrossOrigin(origins = "http://localhost:4200", maxAge = 3600)
 
 public class OrderController implements ControllerConstants {
@@ -34,23 +34,23 @@ public class OrderController implements ControllerConstants {
     OrderService orderService;
 
     @RequestMapping(method=RequestMethod.GET)
-    public List<Order> getAllOrders() {
+    public List<Order> getAllOrders() throws ServiceException {
         return orderService.findAllOrders();
     }
 
     @RequestMapping(method= RequestMethod.POST)
-    public String save(@RequestBody Order order) {
+    public String save(@RequestBody Order order) throws ServiceException {
         orderRepository.save(order);
         return order.getId();
     }
 
     @RequestMapping(method=RequestMethod.GET, value="/{id}")
-    public Order show(@PathVariable String id) {
+    public Order show(@PathVariable String id) throws ServiceException {
         return orderRepository.findById(id).get();
     }
 
     @RequestMapping(method=RequestMethod.GET, value="/find/{orderId}")
-    public List<Order> findByOrderId(@PathVariable String orderId) {
+    public List<Order> findByOrderId(@PathVariable String orderId) throws ServiceException {
         return orderService.findByOrderId(orderId);
     }
 
@@ -80,17 +80,17 @@ public class OrderController implements ControllerConstants {
     }
 
     @RequestMapping(method=RequestMethod.GET, value="/pendingorders")
-    public OrderResponse pendingOrders(@RequestParam String onlyCount) {
+    public OrderResponse pendingOrders(@RequestParam String onlyCount) throws ServiceException {
         return orderService.pendingOrders(Boolean.valueOf(onlyCount));
     }
 
     @RequestMapping(method=RequestMethod.GET, value="/clientorders")
-    public List<ClientOrder> clientOrders(@RequestParam String onlyCount) {
+    public List<ClientOrder> clientOrders(@RequestParam String onlyCount) throws ServiceException {
         return orderService.clientOrders(Boolean.valueOf(onlyCount));
     }
 
     @RequestMapping(method=RequestMethod.PUT, value="/{id}")
-    public Order update(@PathVariable String id, @RequestBody Order order) {
+    public Order update(@PathVariable String id, @RequestBody Order order) throws ServiceException {
         Order existingOrder = orderRepository.findById(id).get();
         existingOrder.setOrderseqId(order.getOrderseqId());
         existingOrder.setOrder_datetime(order.getOrder_datetime());

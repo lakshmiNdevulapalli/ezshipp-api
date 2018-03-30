@@ -37,23 +37,31 @@ public class QueryUtil {
     }
 
     public static Query getPastDayQuery() {
-        Calendar todayMidnight = Calendar.getInstance();
-        todayMidnight.setTimeZone(TimeZone.getTimeZone("Asia/Calcutta"));
-        todayMidnight.set(Calendar.MONTH, Calendar.MARCH);
-        todayMidnight.set(Calendar.DAY_OF_MONTH, 8);
-        todayMidnight.set(Calendar.HOUR_OF_DAY, 00);
-        todayMidnight.set(Calendar.MINUTE, 01);
-        todayMidnight.set(Calendar.SECOND, 01);
+        //LocalDate localDate = LocalDate.now().minusDays(1);
+
         Format formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        String midnight = formatter.format(todayMidnight.getTime());
 
-        Calendar current = Calendar.getInstance();
-        String now = formatter.format(current.getTime());
+        Calendar previousDayMorning = Calendar.getInstance();
+        previousDayMorning.add(Calendar.DAY_OF_MONTH, -1);
+        previousDayMorning.setTimeZone(TimeZone.getTimeZone("Asia/Calcutta"));
+        previousDayMorning.set(Calendar.HOUR_OF_DAY, 00);
+        previousDayMorning.set(Calendar.MINUTE, 01);
+        previousDayMorning.set(Calendar.SECOND, 01);
+        String previousDayMorningStr = formatter.format(previousDayMorning.getTime());
 
+        Calendar previousDayMidNight = Calendar.getInstance();
+        previousDayMidNight.add(Calendar.DAY_OF_MONTH, -1);
+        previousDayMidNight.setTimeZone(TimeZone.getTimeZone("Asia/Calcutta"));
+        previousDayMidNight.set(Calendar.HOUR_OF_DAY, 23);
+        previousDayMidNight.set(Calendar.MINUTE, 59);
+        previousDayMidNight.set(Calendar.SECOND, 59);
+        String previousDayMidNightStr = formatter.format(previousDayMidNight.getTime());
+
+        //construct the query with date range
         Query query = new Query();
         query.addCriteria(where("Date").ne(null).andOperator(
-                where("Date").gte(DateUtil.getDate(midnight, DateUtil.DB_FORMAT_DATETIME)),
-                where("Date").lte(DateUtil.getDate(now, DateUtil.DB_FORMAT_DATETIME))
+                where("Date").gte(DateUtil.getDate(previousDayMorningStr, DateUtil.DB_FORMAT_DATETIME)),
+                where("Date").lte(DateUtil.getDate(previousDayMidNightStr, DateUtil.DB_FORMAT_DATETIME))
         ));
         query.addCriteria(where("Whether_Deleted").ne(Boolean.TRUE));
         return query;

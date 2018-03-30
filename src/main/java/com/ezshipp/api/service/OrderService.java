@@ -6,7 +6,7 @@ import com.ezshipp.api.enums.OrderTypeEnum;
 import com.ezshipp.api.enums.PaymentTypeEnum;
 import com.ezshipp.api.exception.ServiceException;
 import com.ezshipp.api.model.ClientOrder;
-import com.ezshipp.api.model.EventLog;
+import com.ezshipp.api.model.LapseTime;
 import com.ezshipp.api.repositories.OrderRepository;
 import com.ezshipp.api.responses.OrderResponse;
 import com.ezshipp.api.util.DateUtil;
@@ -21,12 +21,11 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
-import java.time.Duration;
-import java.time.LocalTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.ezshipp.api.util.OrderStatusUtil.*;
+import static com.ezshipp.api.util.QueryUtil.getPastDayQuery;
 import static com.ezshipp.api.util.QueryUtil.getTodayQuery;
 
 /**
@@ -35,6 +34,11 @@ import static com.ezshipp.api.util.QueryUtil.getTodayQuery;
 @Service
 public class OrderService {
     private static final Logger logger = LoggerFactory.getLogger(OrderService.class);
+    
+    private static final String ORDER_COLLECTION = "Orders";
+    private static final String FIELD_DATE = "Date";
+    private static final String FIELD_ORDER_SEQID = "orderSeqId";
+    private static final int RECORDS_LIMIT = 500;
 
     @Inject
     OrderRepository orderRepository;
@@ -43,23 +47,39 @@ public class OrderService {
     MongoTemplate mongoTemplate;
 
     @Inject
-    private DriverService driverService;
+    private BikerService bikerService;
 
-    public List<Order> findAllOrders()    {
+    public List<Order> findAllOrders() throws ServiceException {
         logger.info("running findAllOrders..");
         Query query = getTodayQuery();
-        query.with(new Sort(new Sort.Order
-                (Sort.Direction.DESC, "Date")));
-        query.limit(300);
+        List<String> sortFields = new ArrayList<>();
+        sortFields.add(FIELD_DATE);
+        query.with(new Sort(Sort.Direction.DESC, sortFields));
+        query.limit(RECORDS_LIMIT);
 
-        List<Order> orderList = mongoTemplate.find(query, Order.class, "Orders");
+        List<Order> orderList = mongoTemplate.find(query, Order.class, ORDER_COLLECTION);
         applyStatus(orderList);
         setDriverData(orderList);
         applyOrderCompletionTime(orderList);
         return orderList;
     }
 
-    public List<Order> findAllOrders(OrderTypeEnum typeEnum)    {
+    public List<Order> findOrdersDayBefore() throws ServiceException {
+        logger.info("running findOrdersDayBefore..");
+        Query query = getPastDayQuery();
+        List<String> sortFields = new ArrayList<>();
+        sortFields.add(FIELD_DATE);
+        query.with(new Sort(Sort.Direction.DESC, sortFields));
+        query.limit(RECORDS_LIMIT);
+
+        List<Order> orderList = mongoTemplate.find(query, Order.class, ORDER_COLLECTION);
+        applyStatus(orderList);
+        setDriverData(orderList);
+        applyOrderCompletionTime(orderList);
+        return orderList;
+    }
+
+    public List<Order> findAllOrders(OrderTypeEnum typeEnum) throws ServiceException {
         List<Order> orderList = findAllOrders();
         orderList = orderList.stream()
                 .filter(o -> o.getBookingType() == typeEnum.ordinal())
@@ -69,7 +89,7 @@ public class OrderService {
         return orderList;
     }
 
-    public List<Order> findAllPendingOrders()    {
+    public List<Order> findAllPendingOrders() throws ServiceException {
         List<Order> orderList = findAllOrders();
         orderList = orderList.stream()
                 .filter(o -> !isCompleted(o.getStatus()))
@@ -80,9 +100,9 @@ public class OrderService {
         return orderList;
     }
 
-    public List<Order> findByOrderId(String orderId)    {
+    public List<Order> findByOrderId(String orderId) throws ServiceException {
         Query query = new Query();
-        query.addCriteria(Criteria.where("orderseqId").is(orderId));
+        query.addCriteria(Criteria.where(FIELD_ORDER_SEQID).is(orderId));
         List<Order> orders = mongoTemplate.find(query, Order.class);
         setDriverData(orders);
         return orders;
@@ -95,14 +115,14 @@ public class OrderService {
         Query query = new Query(criteria);
 
         //return centralPublicationOrders(false).getDocumentList();
-        List<Order> orders = mongoTemplate.find(query, Order.class, "Orders");
+        List<Order> orders = mongoTemplate.find(query, Order.class, ORDER_COLLECTION);
         setDriverData(orders);
         applyStatus(orders);
         return orders;
     }
 
-    public OrderResponse pendingOrders(boolean onlyCount)    {
-        List<Order> orderList = mongoTemplate.find(getTodayQuery(), Order.class, "Orders");
+    public OrderResponse pendingOrders(boolean onlyCount) throws ServiceException   {
+        List<Order> orderList = mongoTemplate.find(getTodayQuery(), Order.class, ORDER_COLLECTION);
         setDriverData(orderList);
         OrderResponse orderResponse = new OrderResponse();
         orderResponse.setDocumentList(orderList);
@@ -116,7 +136,7 @@ public class OrderService {
     public OrderResponse centralPublicationOrders(boolean onlyCount)    {
         Query query = QueryUtil.getCentralPublicationsQuery();
         //Query query = QueryUtil.getCentralPublicationsRecieverPhoneQuery();
-        List<Order> orderList = mongoTemplate.find(query, Order.class, "Orders");
+        List<Order> orderList = mongoTemplate.find(query, Order.class, ORDER_COLLECTION);
         applyStatus(orderList);
 
         Set<String> items = new HashSet<>();
@@ -147,7 +167,7 @@ public class OrderService {
         return orderResponse;
     }
 
-    public List<ClientOrder> clientOrders(boolean onlyCount)    {
+    public List<ClientOrder> clientOrders(boolean onlyCount) throws ServiceException {
         return pendingOrders(onlyCount).getClientOrderList();
     }
 
@@ -159,63 +179,27 @@ public class OrderService {
         }
     }
 
-    private void setDriverData(List<Order> orders)  {
+    private void setDriverData(List<Order> orders) throws ServiceException {
         List<Order> assignedOrders = orders.stream().filter(o -> o.getEventLog().size() > 1).collect(Collectors.toList());
-        Map<String, Long> bikerOrdersMap = new HashMap<>();
         for (Order order : assignedOrders) {
-            Driver driver = driverService.findByDriverId(order.getEventLog().get(1).getDriverid());
+            Driver driver = bikerService.findByDriverId(order.getEventLog().get(1).getDriverid());
             order.setBikerName(driver.getName() + " " + driver.getLname());
             order.setBikerPhone(driver.getPhone());
             order.setBikerEmail(driver.getEmail());
-
-            if (bikerOrdersMap.containsKey(order.getBikerName())) {
-                Long count = bikerOrdersMap.get(order.getBikerName());
-                bikerOrdersMap.put(order.getBikerName(), ++count);
-            } else {
-                bikerOrdersMap.put(order.getBikerName(), 1L);
-            }
-
-            if (order.getEventLog().size() > 2) {
-                Map<String, Driver> bikersForThisOrder = new HashMap<>();
-                for (EventLog eventLog : order.getEventLog()) {
-                    if (eventLog.getDriverid() != null && !eventLog.getDriverid().equals(driver.get_id()) && !bikersForThisOrder.containsKey(eventLog.getDriverid())) {
-                        Driver anotherDriver = driverService.findByDriverId(eventLog.getDriverid());
-                        bikersForThisOrder.put(anotherDriver.get_id(), anotherDriver);
-                    }
-                }
-
-                for (String bikerId : bikersForThisOrder.keySet()) {
-                    Driver anotherBiker = bikersForThisOrder.get(bikerId);
-                    String bikerName = anotherBiker.getName() + " " + anotherBiker.getLname();
-                    if (bikerOrdersMap.containsKey(bikerName)) {
-                        Long count = bikerOrdersMap.get(bikerName);
-                        bikerOrdersMap.put(bikerName, ++count);
-                    } else {
-                        bikerOrdersMap.put(bikerName, 1L);
-                    }
-                }
-            }
-        }
-
-        for (String b : bikerOrdersMap.keySet()) {
-            System.out.println(b + " has delivered: " + bikerOrdersMap.get(b) + " orders");
         }
     }
 
-    private void applyOrderCompletionTime(List<Order> orders)   {
+    private void applyOrderCompletionTime(List<Order> orders) throws ServiceException {
         for (Order order : orders) {
-            long diff = new Date().getTime() - DateUtil.getDate(order.getOrder_datetime(), DateUtil.DB_FORMAT_DATETIME).getTime();
-            String hourMins = LocalTime.MIN.plus(Duration.ofMinutes( diff )).toString();
-            order.setOrderlapseTime(hourMins);
+            LapseTime lapseTime = DateUtil.getLapseTime(DateUtil.getDate(order.getOrder_datetime(), DateUtil.DB_FORMAT_DATETIME), new Date());
+            order.setOrderlapseTime(lapseTime.getDiffHours() + " : " + lapseTime.getDiffMinutes());
             if (order.getOrderType() == OrderTypeEnum.INSTANT.ordinal())    {
-                long hours = diff / 60 * 60 * 1000;
-                if (hours <= 2)   {
+                if (lapseTime.getDiffHours() <= 2)   {
                     order.setOnTimeDelivered(true);
                 }
             }
             else if (order.getOrderType() == OrderTypeEnum.FOURHOURS.ordinal())    {
-                long hours = diff / 60 * 60 * 1000;
-                if (hours <= 4)   {
+                if (lapseTime.getDiffHours() <= 4)   {
                     order.setOnTimeDelivered(true);
                 }
             }

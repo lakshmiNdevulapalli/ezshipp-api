@@ -6,17 +6,8 @@ package com.ezshipp.api.exception;
  */
 public enum ServiceExceptionCode {
 
-    /** The arrivals file schema validation error. */
-    ARRIVALS_FILE_SCHEMA_VALIDATION_ERROR("1500"),
-
-    /** The autoupgrade pms service unavailable. */
-    AUTOUPGRADE_ASSIGNMENT_PMS_SERVICE_UNAVAILABLE("6113"),
-
-    /** The autoupgrade request schema validation error. */
-    AUTOUPGRADE_ASSIGNMENT_REQUEST_SCHEMA_VALIDATION_ERROR("6114"),
-
-    /** The autoupgrade response schema validation error. */
-    AUTOUPGRADE_ASSIGNMENT_RESPONSE_SCHEMA_VALIDATION_ERROR("6115"),
+    /** The excel generation error. */
+    EXCEL_GENERATION_ERROR("1500"),
 
     /** The EPSILON s_ no n_200. */
     BAD_XML_REQUEST_FORMAT("117"),

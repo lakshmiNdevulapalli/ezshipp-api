@@ -4,9 +4,8 @@ import com.ezshipp.api.document.Order;
 import com.ezshipp.api.model.OrderCount;
 import com.ezshipp.api.poi.ExcelGenerator;
 import com.ezshipp.api.responses.OrderResponse;
-import com.ezshipp.api.service.MailGunEmailService;
+import com.ezshipp.api.scheduler.ReportingSchedular;
 import com.ezshipp.api.service.OrderService;
-import com.mashape.unirest.http.JsonNode;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,44 +13,46 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import javax.inject.Inject;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Component
-public class OrderReportingSchedular {
+public class OrderReportingSchedular extends ReportingSchedular{
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Inject
     private OrderService orderService;
 
-    @Inject
-    private MailGunEmailService mailGunEmailService;
-
-    @Scheduled(cron = "0 30 22 * * *") //every day 10:30PM
+    @Scheduled(cron = "0 33 22 * * *") //every day 10:30PM
     public void pendingOrdersReport() throws Exception {
         logger.info("reportPendingOrders: ");
         List<Order> orders = orderService.findAllPendingOrders();
+        orders = orders.stream()
+                .sorted((e1, e2) -> Integer.compare(e1.getBookingType(), e2.getBookingType()))
+                .collect(Collectors.toList());
+
         Workbook workbook = new ExcelGenerator<Order>().createXLS(orders, new PendingOrderDataImpl());
-        ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        workbook.write(bos);
-        InputStream inputStream = new ByteArrayInputStream(bos.toByteArray());
-        String body = "Attached is the pending orders report for " + new Date();
-        JsonNode jsonNode = mailGunEmailService.sendComplexMessage("pending orders report", body, inputStream,
-                "pending-orders.xlsx");
-        logger.info("confirmation response from email: " + jsonNode.toString());
+        createFile(workbook,"/Users/srinivasseri/ezshipp-reports/pending-orders.xlsx");
+        //sendMail(workbook);
+
+//        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+//        workbook.write(bos);
+//        InputStream inputStream = new ByteArrayInputStream(bos.toByteArray());
+//        String body = "Attached is the pending orders report for " + new Date();
+//        JsonNode jsonNode = mailGunEmailService.sendComplexMessage("pending orders report", body, inputStream,
+//                "pending-orders.xlsx");
+//        logger.info("confirmation response from email: " + jsonNode.toString());
 
     }
 
-    @Scheduled(cron = "0 30 08 * * *") //every day 08:30AM
+    @Scheduled(cron = "0 22 11 * * *") //every day 08:30AM
     public void orderCountReport() throws Exception {
         logger.info("reportPendingOrders: ");
-        List<Order> orderList = orderService.findAllOrders();
+        List<Order> orderList = orderService.findOrdersDayBefore();
         OrderResponse orderResponse = new OrderResponse();
         orderResponse.setDocumentList(orderList);
         orderResponse.setCounts();
@@ -78,31 +79,83 @@ public class OrderReportingSchedular {
         ongoingCount.setFourHours(orderResponse.getFourHoursOngoingCount());
         ongoingCount.setSameDay(orderResponse.getSameDayOngoingCount());
         orderCountList.add(ongoingCount);
+        orderCountList.add(null);
 
-        Set<String> allZones = orderResponse.getZonalSameDayCount().keySet();
+        Set<String> allPickZones = new HashSet<>();
+        if (!orderResponse.getZonalSameDayPickupCount().isEmpty()) {
+            allPickZones.addAll(orderResponse.getZonalSameDayPickupCount().keySet());
+        }
+        if (!orderResponse.getZonalFourHoursPickupCount().isEmpty()) {
+            allPickZones.addAll(orderResponse.getZonalFourHoursPickupCount().keySet());
+        }
+        if (!orderResponse.getZonalInstantPickupCount().isEmpty()) {
+            allPickZones.addAll(orderResponse.getZonalInstantPickupCount().keySet());
+        }
 
-        for (String z : allZones) {
+        Set<String> allDeliveryZones = new HashSet<>();
+        if (!orderResponse.getZonalSameDayDeliveryCount().isEmpty()) {
+            allDeliveryZones.addAll(orderResponse.getZonalSameDayDeliveryCount().keySet());
+        }
+        if (!orderResponse.getZonalFourHoursDeliveryCount().isEmpty()) {
+            allDeliveryZones.addAll(orderResponse.getZonalFourHoursDeliveryCount().keySet());
+        }
+        if (!orderResponse.getZonalInstantDeliveryCount().isEmpty()) {
+            allDeliveryZones.addAll(orderResponse.getZonalInstantDeliveryCount().keySet());
+        }
+
+        for (String z : allPickZones) {
             OrderCount zonalCount = new OrderCount();
-            zonalCount.setOpsType("No of Orders by Zone: " + z);
-            if (orderResponse.getZonalInstantCount() != null
-                    && !orderResponse.getZonalInstantCount().isEmpty()
-                    && orderResponse.getZonalInstantCount().get(z) != null) {
-                zonalCount.setInstant(orderResponse.getZonalInstantCount().get(z));
+            zonalCount.setOpsType("Pickup Zone: " + z);
+            if (orderResponse.getZonalInstantPickupCount() != null
+                    && !orderResponse.getZonalInstantPickupCount().isEmpty()
+                    && orderResponse.getZonalInstantPickupCount().get(z) != null) {
+                zonalCount.setInstant(orderResponse.getZonalInstantPickupCount().get(z));
             } else    {
                 zonalCount.setInstant(0);
             }
-            if (orderResponse.getZonalFourHoursCount() != null
-                    && !orderResponse.getZonalFourHoursCount().isEmpty()
-                    && orderResponse.getZonalFourHoursCount().get(z) != null) {
-                zonalCount.setFourHours(orderResponse.getZonalFourHoursCount().get(z));
+            if (orderResponse.getZonalFourHoursPickupCount() != null
+                    && !orderResponse.getZonalFourHoursPickupCount().isEmpty()
+                    && orderResponse.getZonalFourHoursPickupCount().get(z) != null) {
+                zonalCount.setFourHours(orderResponse.getZonalFourHoursPickupCount().get(z));
             } else    {
                 zonalCount.setFourHours(0);
             }
 
-            if (orderResponse.getZonalSameDayCount() != null
-                    && !orderResponse.getZonalSameDayCount().isEmpty()
-                    && orderResponse.getZonalSameDayCount().get(z) != null) {
-                zonalCount.setSameDay(orderResponse.getZonalSameDayCount().get(z));
+            if (orderResponse.getZonalSameDayPickupCount() != null
+                    && !orderResponse.getZonalSameDayPickupCount().isEmpty()
+                    && orderResponse.getZonalSameDayPickupCount().get(z) != null) {
+                zonalCount.setSameDay(orderResponse.getZonalSameDayPickupCount().get(z));
+            } else    {
+                zonalCount.setSameDay(0);
+            }
+
+            orderCountList.add(zonalCount);
+        }
+
+        orderCountList.add(null);
+
+        for (String z : allDeliveryZones) {
+            OrderCount zonalCount = new OrderCount();
+            zonalCount.setOpsType("Delivery Zone: " + z);
+            if (orderResponse.getZonalInstantDeliveryCount() != null
+                    && !orderResponse.getZonalInstantDeliveryCount().isEmpty()
+                    && orderResponse.getZonalInstantDeliveryCount().get(z) != null) {
+                zonalCount.setInstant(orderResponse.getZonalInstantDeliveryCount().get(z));
+            } else    {
+                zonalCount.setInstant(0);
+            }
+            if (orderResponse.getZonalFourHoursDeliveryCount() != null
+                    && !orderResponse.getZonalFourHoursDeliveryCount().isEmpty()
+                    && orderResponse.getZonalFourHoursDeliveryCount().get(z) != null) {
+                zonalCount.setFourHours(orderResponse.getZonalFourHoursDeliveryCount().get(z));
+            } else    {
+                zonalCount.setFourHours(0);
+            }
+
+            if (orderResponse.getZonalSameDayDeliveryCount() != null
+                    && !orderResponse.getZonalSameDayDeliveryCount().isEmpty()
+                    && orderResponse.getZonalSameDayDeliveryCount().get(z) != null) {
+                zonalCount.setSameDay(orderResponse.getZonalSameDayDeliveryCount().get(z));
             } else    {
                 zonalCount.setSameDay(0);
             }
@@ -111,14 +164,10 @@ public class OrderReportingSchedular {
         }
 
         Workbook workbook = new ExcelGenerator<OrderCount>().createXLS(orderCountList, new OrderCountDataImpl());
-        ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        workbook.write(bos);
-        InputStream inputStream = new ByteArrayInputStream(bos.toByteArray());
-        String body = "Attached is the operations counting orders report for " + new Date();
-        JsonNode jsonNode = mailGunEmailService.sendComplexMessage("operation counting orders report", body, inputStream,
-                "counting-orders.xlsx");
-        logger.info("confirmation response from email: " + jsonNode.toString());
-
+        createFile(workbook,"/Users/srinivasseri/ezshipp-reports/orders-count.xlsx");
+        //sendMail(workbook);
 
     }
+
+
 }

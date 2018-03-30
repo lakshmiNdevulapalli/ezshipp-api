@@ -52,10 +52,14 @@ public class OrderResponse {
     private Map<String, Long> clientOrdersCount = new HashMap<>();
     private Map<String, List<Order>> clientOrders = new HashMap<>();
     private List<ClientOrder> clientOrderList = new ArrayList<>();
+
     private Map<String, Long> zonalCount = new HashMap<>();
-    private Map<String, Long> zonalInstantCount = new HashMap<>();
-    private Map<String, Long> zonalFourHoursCount = new HashMap<>();
-    private Map<String, Long> zonalSameDayCount = new HashMap<>();
+    private Map<String, Long> zonalInstantPickupCount = new HashMap<>();
+    private Map<String, Long> zonalFourHoursPickupCount = new HashMap<>();
+    private Map<String, Long> zonalSameDayPickupCount = new HashMap<>();
+    private Map<String, Long> zonalInstantDeliveryCount = new HashMap<>();
+    private Map<String, Long> zonalFourHoursDeliveryCount = new HashMap<>();
+    private Map<String, Long> zonalSameDayDeliveryCount = new HashMap<>();
     private List<Zone> zonalList = new ArrayList<>();
 
     private List<Order> completedOrderList = new ArrayList<>();
@@ -146,9 +150,13 @@ public class OrderResponse {
 
         totalCount = totalCount - cancelledCount;
 
-        applyZoneCount(getDocumentsByType(OrderTypeEnum.SAMEDAY.ordinal()), zonalSameDayCount);
-        applyZoneCount(getDocumentsByType(OrderTypeEnum.INSTANT.ordinal()), zonalInstantCount);
-        applyZoneCount(getDocumentsByType(OrderTypeEnum.FOURHOURS.ordinal()), zonalFourHoursCount);
+        applyZonePickupCount(getDocumentsByType(OrderTypeEnum.SAMEDAY.ordinal()), zonalSameDayPickupCount);
+        applyZonePickupCount(getDocumentsByType(OrderTypeEnum.FOURHOURS.ordinal()), zonalFourHoursPickupCount);
+        applyZonePickupCount(getDocumentsByType(OrderTypeEnum.INSTANT.ordinal()), zonalInstantPickupCount);
+
+        applyZoneDeliveryCount(getDocumentsByType(OrderTypeEnum.SAMEDAY.ordinal()), zonalSameDayDeliveryCount);
+        applyZoneDeliveryCount(getDocumentsByType(OrderTypeEnum.FOURHOURS.ordinal()), zonalFourHoursDeliveryCount);
+        applyZoneDeliveryCount(getDocumentsByType(OrderTypeEnum.INSTANT.ordinal()), zonalInstantDeliveryCount);
 
         fetchClientOrders();
     }
@@ -168,18 +176,28 @@ public class OrderResponse {
                 zonalCount.put(o.getDeliverydeponame(), ++count);
             }
         }
+    }
 
-//        zonalCount =
-//                documentList.stream()
-//                        .filter(o -> !(isCancelled(o.getStatus())))
-//                        .collect(Collectors.groupingBy(Order::getPickupdeponame, Collectors.counting()));
-//        System.out.println(zonalCount);
-//        zonalCount.clear();
-//        zonalCount =
-//                documentList.stream()
-//                        .filter(o -> !(isCancelled(o.getStatus())))
-//                        .collect(Collectors.groupingBy(Order::getDeliverydeponame, Collectors.counting()));
-//        System.out.println(zonalCount);
+    private void applyZonePickupCount(List<Order> orders, Map<String, Long> zonalCount) {
+        for (Order o : orders) {
+            if (!zonalCount.containsKey(o.getPickupdeponame()))  {
+                zonalCount.put(o.getPickupdeponame(), 1L);
+            } else {
+                long count = zonalCount.get(o.getPickupdeponame());
+                zonalCount.put(o.getPickupdeponame(), ++count);
+            }
+        }
+    }
+
+    private void applyZoneDeliveryCount(List<Order> orders, Map<String, Long> zonalCount) {
+        for (Order o : orders) {
+            if (!zonalCount.containsKey(o.getDeliverydeponame()))  {
+                zonalCount.put(o.getDeliverydeponame(), 1L);
+            } else  {
+                long count = zonalCount.get(o.getDeliverydeponame());
+                zonalCount.put(o.getDeliverydeponame(), ++count);
+            }
+        }
     }
 
 

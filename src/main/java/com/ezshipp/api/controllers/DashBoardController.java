@@ -9,8 +9,8 @@ import org.springframework.web.bind.annotation.RestController;
  * Created by srinivasseri on 3/3/18.
  */
 @RestController
-@Api(value = "/api/dashboard/", description = "a rest service")
-@RequestMapping(path = "/api/dashboard/")
+@Api(value = "/api/v1dashboard/", description = "a rest service")
+@RequestMapping(path = "/api/v1/dashboard/")
 @CrossOrigin(origins = "http://localhost:4200", maxAge = 3600)
 public class DashBoardController implements ControllerConstants {
 }

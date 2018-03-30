@@ -3,7 +3,7 @@ spring:
   data:
     mongodb:
       #uri: mongodb://ezshippDBA:ezshippevontex@db.ezshipp.com:1234/ezshipp
-      uri: mongodb://ezshipptesting:ezshipptesting@betadb.ezshipp.com:1234
+      uri: mongodb://ezshipptesting:ezshipptesting@betadb.ezshipp.com:1234/ezshipp
       db: ezshipp
   mail:
     protocol: smtp
@@ -22,3 +22,8 @@ redis:
   port: 6379
 server:
  port: 5000
+sparkpost:
+  apikey: 907889aed76dde6a1207e1479d387c89b11badb3
+  sender: no-reply@ezshipp.com
+  url: https://api.sparkpost.com/api/v1/
+  recepients: srinivas.seri@ezshipp.com

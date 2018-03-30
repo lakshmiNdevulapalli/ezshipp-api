@@ -20,8 +20,8 @@ import javax.servlet.http.HttpServletResponse;
  * Created by srinivasseri on 2/26/18.
  */
 @RestController
-@Api(value = "/api/downloads", description = "a rest service")
-@RequestMapping(path = "/api/downloads")
+@Api(value = "/api/v1/downloads", description = "a rest service")
+@RequestMapping(path = "/api/v1/downloads")
 @CrossOrigin(origins = "http://localhost:4200", maxAge = 3600)
 public class ExportController implements ControllerConstants {
 

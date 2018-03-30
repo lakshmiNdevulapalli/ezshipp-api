@@ -28,11 +28,11 @@ public class SwaggerConfig {
 
     private Predicate<String> ezshippPaths() {
 		return or(
-				regex("/api/orders.*"),
-				regex("/api/customers.*"),
-				regex("/api/downloads.*"),
-				regex("/api/bikers.*"),
-				regex("/api/dashboard.*")
+				regex("/api/v1/orders.*"),
+				regex("/api/v1/customers.*"),
+				regex("/api/v1/downloads.*"),
+				regex("/api/v1/bikers.*"),
+				regex("/api/v1/dashboard.*")
 		);
 	}
     private ApiInfo apiInfo() {

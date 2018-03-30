@@ -29,7 +29,11 @@ public class ExcelGenerator<T> {
 
 			List<T> sheetData = new ArrayList<>();
 			for(T data : modelData){
-				sheetData.add(data);
+				if (data == null)	{
+					sheetData.add(null);
+				} else	{
+					sheetData.add(data);
+				}
 			}
 
 			processWorkSheet(xSSFSheet, sheetData, excelData);
@@ -56,7 +60,6 @@ public class ExcelGenerator<T> {
 		style.setFillForegroundColor(new XSSFColor(new byte[]{(byte) 79, (byte) 129, (byte) 189}));
 		style.setFillPattern(XSSFCellStyle.SOLID_FOREGROUND);
 
-
 		int len = field.length;
 
 		for (int i = 0; i < len; i++) {
@@ -75,6 +78,9 @@ public class ExcelGenerator<T> {
 
 		for (T entry : entries) {
 			XSSFRow row = sheet.createRow(++exCount);
+			if (entry == null)	{
+				continue;
+			}
 			List<Object> elements = excelData.getColumnElements(entry);
 			writeRecord(row, elements);
 			lastCellNum = row.getLastCellNum();
