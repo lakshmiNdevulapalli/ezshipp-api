@@ -11,8 +11,6 @@ import org.springframework.data.mongodb.repository.config.EnableMongoRepositorie
 import java.util.ArrayList;
 import java.util.List;
 
-//import org.springframework.context.annotation.Profile;
-
 /**
  * Created by srinivasseri on 2/6/18.
  */
@@ -33,7 +31,6 @@ public class MongoConfig extends AbstractMongoConfiguration {
 
     @Override
     public MongoClient mongoClient() {
-        System.out.println("******************************************URL: " + uri);
         return new MongoClient(new MongoClientURI(uri));
     }
 

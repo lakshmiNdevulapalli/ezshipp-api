@@ -31,12 +31,14 @@
         <appender-ref ref="RollingFile-Appender" />
     </appender>
 
-    <logger name="com.ezshipp.api"  level="error" additivity="false">
+    <logger name="com.ezshipp.api"  level="info" additivity="false">
         <appender-ref ref="Console-Appender" />
         <appender-ref ref="File-Appender" />
         <appender-ref ref="Async-Appender" />
     </logger>
-    <root>
+
+    <root level="info">
         <appender-ref ref="Console-Appender"/>
     </root>
+
 </configuration>
