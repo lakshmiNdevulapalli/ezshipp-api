@@ -32,7 +32,7 @@ public class ReportingSchedular {
         }
     }
 
-    protected void sendMail(Workbook workbook)  throws ServiceException   {
+    protected void sendMail(Workbook workbook, String subject, String fileName)  throws ServiceException   {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         try {
             workbook.write(bos);
@@ -41,8 +41,7 @@ public class ReportingSchedular {
         }
         InputStream inputStream = new ByteArrayInputStream(bos.toByteArray());
         String body = "Attached is the operations counting orders report for " + new Date();
-        JsonNode jsonNode = mailGunEmailService.sendComplexMessage("operation counting orders report", body, inputStream,
-                "counting-orders.xlsx");
+        JsonNode jsonNode = mailGunEmailService.sendComplexMessage(subject, body, inputStream, fileName);
         logger.info("confirmation response from email: " + jsonNode.toString());
     }
 }

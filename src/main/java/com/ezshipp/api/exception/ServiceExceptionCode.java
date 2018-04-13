@@ -466,6 +466,9 @@ public enum ServiceExceptionCode {
     /** The unknown reason exception. */
     UNKNOWN_REASON("146"),
 
+    /** The unknown reason exception. */
+    INVALID_LONGITUDE_LATITUDE("147"),
+
     /** The unmarshalling error. */
     UNMARSHALLING_ERROR("112"),
 

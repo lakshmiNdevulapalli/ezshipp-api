@@ -37,8 +37,6 @@ public class QueryUtil {
     }
 
     public static Query getPastDayQuery() {
-        //LocalDate localDate = LocalDate.now().minusDays(1);
-
         Format formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
         Calendar previousDayMorning = Calendar.getInstance();
@@ -70,9 +68,9 @@ public class QueryUtil {
     public static Query getCentralPublicationsQuery() {
         Calendar todayMidnight = Calendar.getInstance();
         todayMidnight.setTimeZone(TimeZone.getTimeZone("Asia/Calcutta"));
-        todayMidnight.set(Calendar.MONTH, Calendar.FEBRUARY);
-        todayMidnight.set(Calendar.YEAR, 2018);
-        todayMidnight.set(Calendar.DAY_OF_MONTH, 25);
+        todayMidnight.set(Calendar.MONTH, Calendar.NOVEMBER);
+        todayMidnight.set(Calendar.YEAR, 2017);
+        todayMidnight.set(Calendar.DAY_OF_MONTH, 1);
         todayMidnight.set(Calendar.HOUR_OF_DAY, 00);
         todayMidnight.set(Calendar.MINUTE, 00);
         todayMidnight.set(Calendar.SECOND, 01);
@@ -82,9 +80,9 @@ public class QueryUtil {
         //Calendar current = Calendar.getInstance();
         Calendar toDate = Calendar.getInstance();
         toDate.setTimeZone(TimeZone.getTimeZone("Asia/Calcutta"));
-        toDate.set(Calendar.MONTH, Calendar.MARCH);
+        toDate.set(Calendar.MONTH, Calendar.APRIL);
         toDate.set(Calendar.YEAR, 2018);
-        toDate.set(Calendar.DAY_OF_MONTH, 02);
+        toDate.set(Calendar.DAY_OF_MONTH, 07);
         toDate.set(Calendar.HOUR_OF_DAY, 23);
         toDate.set(Calendar.MINUTE, 59);
         toDate.set(Calendar.SECOND, 59);

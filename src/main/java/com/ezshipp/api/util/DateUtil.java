@@ -5,6 +5,8 @@ import com.ezshipp.api.model.LapseTime;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
@@ -14,6 +16,11 @@ import java.util.TimeZone;
  */
 public class DateUtil {
     public static void main(String[] args) {
+        ZonedDateTime now = ZonedDateTime.now( ZoneOffset.UTC );
+        System.out.println(now.toLocalDateTime());
+        System.out.println(getUTCDateTimeAsString());
+
+
         Calendar todayMidnight = Calendar.getInstance();
         todayMidnight.setTimeZone(TimeZone.getTimeZone("Asia/Calcutta"));
         todayMidnight.set(Calendar.HOUR_OF_DAY, 11);
@@ -33,6 +40,14 @@ public class DateUtil {
     }
 
     public static final String DB_FORMAT_DATETIME = "yyyy-M-d HH:mm:ss";
+    public static final String DATEFORMAT = "yyyy-MM-dd HH:mm:ss";
+
+    public static String getUTCDateTimeAsString() {
+        final SimpleDateFormat sdf = new SimpleDateFormat(DATEFORMAT);
+        sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
+        final String utcTime = sdf.format(new Date());
+        return utcTime;
+    }
 
     public static Date getDate(String dateStr, String format) {
         final DateFormat formatter = new SimpleDateFormat(format);
@@ -57,4 +72,6 @@ public class DateUtil {
 
         return lapseTime;
     }
+
+
 }

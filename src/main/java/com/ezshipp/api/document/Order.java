@@ -19,7 +19,9 @@ public class Order {
     @Id
     String id;
     String orderseqId;
-
+//    @JsonProperty(value="Date")
+//    Date date;
+    boolean DateSet;
 
     String order_datetime;
     int orderType;
@@ -44,7 +46,7 @@ public class Order {
     String Zone_Order_Accepted;
 
     String Hub_Longitude;
-    Location location;
+    //Location location;
     String Hub_Address;
     String ZoneHubID;
     String ZoneID;
@@ -53,7 +55,7 @@ public class Order {
     boolean Whether_Deleted;
 
     String reviewMsg;
-    String ratingFlag;
+    int ratingFlag;
     Devices devices;
     //double item_actual_cost;
     double total_amount;
@@ -69,7 +71,7 @@ public class Order {
     Location dropLocation;
     String drop_Landmark;
     String drop_Flat_Details;
-    //Location pickLocation;
+    Location pickLocation;
     String pickup_Landmark;
     String pickup_Flat_Details;
 
@@ -83,12 +85,7 @@ public class Order {
     String customerPhone;
     String customerEmail;
     String customerName;
-    int Cart_Parcel_Weight;
-    //double Cart_Amount;
-    String StoreAddress;
-    String StoreEmailID;
-    String StorePhoneNumber;
-    String StoreName;
+
     boolean WhetherStoreOrder;
     //PaymentTypeEnum paymentType;
     String ReferenceOfferID;
@@ -125,6 +122,18 @@ public class Order {
     boolean onTimeDelivered;
     String orderCompletionTime;
     String orderlapseTime;
+
+    String BranchID;
+    String CartID;
+    int Cart_Parcel_Weight;
+    double Cart_Amount;
+    String StoreAddress;
+    String StoreEmailID;
+    String StorePhoneNumber;
+    String StoreName;
+    int Cart_Parcel_Wieght;
+    List<String> StoreCartData;
+    List<String> driversLog;
 
 
 

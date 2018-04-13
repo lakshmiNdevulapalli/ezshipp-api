@@ -1,19 +1,25 @@
 package com.ezshipp.api.service;
 
+import com.ezshipp.api.document.Customer;
 import com.ezshipp.api.document.Driver;
 import com.ezshipp.api.document.Order;
 import com.ezshipp.api.enums.OrderTypeEnum;
 import com.ezshipp.api.enums.PaymentTypeEnum;
+import com.ezshipp.api.exception.BusinessException;
 import com.ezshipp.api.exception.ServiceException;
 import com.ezshipp.api.model.ClientOrder;
 import com.ezshipp.api.model.LapseTime;
+import com.ezshipp.api.model.MatrixDistance;
+import com.ezshipp.api.model.request.CreateOrderRequest;
 import com.ezshipp.api.repositories.OrderRepository;
 import com.ezshipp.api.responses.OrderResponse;
 import com.ezshipp.api.util.DateUtil;
 import com.ezshipp.api.util.QueryUtil;
+import com.google.maps.model.LatLng;
 import org.apache.commons.lang3.text.WordUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.task.TaskExecutor;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -24,6 +30,7 @@ import javax.inject.Inject;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.ezshipp.api.util.DateUtil.getUTCDateTimeAsString;
 import static com.ezshipp.api.util.OrderStatusUtil.*;
 import static com.ezshipp.api.util.QueryUtil.getPastDayQuery;
 import static com.ezshipp.api.util.QueryUtil.getTodayQuery;
@@ -36,8 +43,10 @@ public class OrderService {
     private static final Logger logger = LoggerFactory.getLogger(OrderService.class);
     
     private static final String ORDER_COLLECTION = "Orders";
+    private static final String ORDER_SEQ_ID = "orderid";
     private static final String FIELD_DATE = "Date";
     private static final String FIELD_ORDER_SEQID = "orderSeqId";
+    private static final String ORDER_SEQID_PREFIX = "E0000";
     private static final int RECORDS_LIMIT = 500;
 
     @Inject
@@ -49,12 +58,66 @@ public class OrderService {
     @Inject
     private BikerService bikerService;
 
+    @Inject
+    private CustomerService customerService;
+
+    @Inject
+    private CounterService counterService;
+
+    @Inject
+    private GoogleMapService googleMapService;
+
+    @Inject
+    private TaskExecutor taskExecutor;
+
+    public Order createOrder(CreateOrderRequest createOrderRequest) throws BusinessException, ServiceException  {
+        Order order = createOrderRequest.toOrder();
+        String orderSeqId = ORDER_SEQID_PREFIX + counterService.getSequence(ORDER_SEQ_ID);
+        order.setOrderseqId(orderSeqId);
+        //order.setDate(new Date());
+        //order.setDateSet(true);
+        order.setOrder_datetime(getUTCDateTimeAsString());
+
+        Customer customer = customerService.getCustomerById(order.getUserId());
+        order.setCustomerName(customer.getFirst_name());
+        order.setCustomerPhone(customer.getPhone());
+        order.setCustomerEmail(customer.getEmail());
+
+        order = orderRepository.save(order);
+
+        taskExecutor.execute(new PostOrderCreation(order));
+
+
+        return order;
+    }
+
+
+
+
+    public void findGeoLocation() throws BusinessException, ServiceException   {
+//        List<org.springframework.data.geo.Point> points = new ArrayList<>();
+//        points.add(new Point(-73.992514, 40.758934));
+//        //GeoJsonPolygon geoJsonPolygon = new GeoJsonPolygon(points);
+//        GeoJsonPoint geoJsonPolygon = new GeoJsonPoint(78.3828793,17.4411379);
+//        getZone(geoJsonPolygon);
+
+        LatLng[] origins = new LatLng[]{new LatLng(17.4916485, 78.5390718), new LatLng(17.4100435, 78.4625503)};
+        LatLng[] destinations = new LatLng[]{new LatLng(17.4402315, 78.5386568)};
+
+        List<MatrixDistance> matrixDistanceList = googleMapService.calculateDistance(origins, destinations);
+        for (MatrixDistance matrixDistance : matrixDistanceList) {
+            System.out.println(matrixDistance.getDistance());
+            System.out.println(matrixDistance.getDuration());
+        }
+
+    }
+
     public List<Order> findAllOrders() throws ServiceException {
         logger.info("running findAllOrders..");
         Query query = getTodayQuery();
         List<String> sortFields = new ArrayList<>();
         sortFields.add(FIELD_DATE);
-        query.with(new Sort(Sort.Direction.DESC, sortFields));
+        //query.with(new Sort(Sort.Direction.DESC, sortFields));
         query.limit(RECORDS_LIMIT);
 
         List<Order> orderList = mongoTemplate.find(query, Order.class, ORDER_COLLECTION);
@@ -93,6 +156,7 @@ public class OrderService {
         List<Order> orderList = findAllOrders();
         orderList = orderList.stream()
                 .filter(o -> !isCompleted(o.getStatus()))
+                .filter(o -> !isCancelled(o.getStatus()))
                 .collect(Collectors.toList());
         applyStatus(orderList);
         setDriverData(orderList);
@@ -133,10 +197,10 @@ public class OrderService {
         return orderResponse;
     }
 
-    public OrderResponse centralPublicationOrders(boolean onlyCount)    {
+    public OrderResponse centralPublicationOrders(boolean onlyCount) throws ServiceException    {
         Query query = QueryUtil.getCentralPublicationsQuery();
-        //Query query = QueryUtil.getCentralPublicationsRecieverPhoneQuery();
         List<Order> orderList = mongoTemplate.find(query, Order.class, ORDER_COLLECTION);
+        //orderList = orderList.stream().filter(o -> !isCompleted(o.getStatus())).collect(Collectors.toList());
         applyStatus(orderList);
 
         Set<String> items = new HashSet<>();
@@ -162,7 +226,6 @@ public class OrderService {
         System.out.println("cancelled size: " + orderResponse.getCancelledCount());
         System.out.println("new size: " + orderResponse.getNewCount());
         System.out.println("ongoing size: " + orderResponse.getOngoingCount());
-
 
         return orderResponse;
     }

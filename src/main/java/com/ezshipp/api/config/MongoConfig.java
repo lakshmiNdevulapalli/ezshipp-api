@@ -34,4 +34,9 @@ public class MongoConfig extends AbstractMongoConfiguration {
         return new MongoClient(new MongoClientURI(uri));
     }
 
+//    @Override
+//    public CustomConversions customConversions() {
+//        return new CustomConversions(GeoJsonConverters.getConvertersToRegister());
+//    }
+
 }

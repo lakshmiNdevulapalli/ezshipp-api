@@ -15,18 +15,12 @@ import static org.springframework.data.redis.cache.RedisCacheConfiguration.defau
 @Configuration
 @EnableCaching
 @ComponentScan("com.ezshipp.api")
-//@PropertySource("classpath:/redis.properties")
 public class AppConfig {
 
     private @Value("${redis.host}")
     String redisHost;
     private @Value("${redis.port}")
     int redisPort;
-
-//    @Bean
-//    public static PropertySourcesPlaceholderConfigurer propertySourcesPlaceholderConfigurer() {
-//        return new PropertySourcesPlaceholderConfigurer();
-//    }
 
     @Bean
     public JedisConnectionFactory jedisConnectionFactory() {
@@ -43,11 +37,6 @@ public class AppConfig {
         redisTemplate.setConnectionFactory(jedisConnectionFactory());
         return redisTemplate;
     }
-
-//    @Bean
-//    public CacheManager cacheManager() {
-//        return new RedisCacheManager(redisTemplate());
-//    }
 
     @Bean
     public RedisCacheManager cacheManager(JedisConnectionFactory redisConnectionFactory) {

@@ -2,8 +2,8 @@ spring:
   profiles: dev
   data:
     mongodb:
-      #uri: mongodb://ezshippDBA:ezshippevontex@db.ezshipp.com:1234/ezshipp
-      uri: mongodb://ezshipptesting:ezshipptesting@betadb.ezshipp.com:1234/ezshipp
+      uri: mongodb://ezshippDBA:ezshippevontex@db.ezshipp.com:1234/ezshipp
+      #uri: mongodb://ezshipptesting:ezshipptesting@betadb.ezshipp.com:1234/ezshipp
       db: ezshipp
   mail:
     protocol: smtp
@@ -27,3 +27,5 @@ sparkpost:
   sender: no-reply@ezshipp.com
   url: https://api.sparkpost.com/api/v1/
   recepients: srinivas.seri@ezshipp.com
+google:
+  apikey: AIzaSyBelEh0cEBYDdkTonoS7bYhyu9RuOEC-kE

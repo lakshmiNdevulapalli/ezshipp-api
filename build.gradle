@@ -68,6 +68,13 @@ dependencies {
 
     compile('redis.clients:jedis:2.9.0')
 
+    compile 'com.google.code.gson:gson:2.8.1'
+    compile 'com.squareup.okhttp3:okhttp:3.8.1'
+    compile 'joda-time:joda-time:2.9.9'
+    compile group: 'com.google.maps', name: 'google-maps-services', version: '0.1.1'
+    compileOnly 'com.google.appengine:appengine-api-1.0-sdk:1.9.54'
+
+
     testCompile("org.springframework.boot:spring-boot-starter-test")
     //testCompile group: 'org.slf4j', name: 'slf4j-simple', version: '1.6.1'
 

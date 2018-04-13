@@ -17,7 +17,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @Component
 public class OrderReportingSchedular extends ReportingSchedular{
@@ -27,29 +26,20 @@ public class OrderReportingSchedular extends ReportingSchedular{
     @Inject
     private OrderService orderService;
 
-    @Scheduled(cron = "0 33 22 * * *") //every day 10:30PM
+    @Scheduled(cron = "0 42 21 * * *") //every day 10:30PM
     public void pendingOrdersReport() throws Exception {
         logger.info("reportPendingOrders: ");
         List<Order> orders = orderService.findAllPendingOrders();
-        orders = orders.stream()
-                .sorted((e1, e2) -> Integer.compare(e1.getBookingType(), e2.getBookingType()))
-                .collect(Collectors.toList());
+//        orders = orders.stream()
+//                .sorted((e1, e2) -> Integer.compare(e1.getBookingType(), e2.getBookingType()))
+//                .collect(Collectors.toList());
 
         Workbook workbook = new ExcelGenerator<Order>().createXLS(orders, new PendingOrderDataImpl());
         createFile(workbook,"/Users/srinivasseri/ezshipp-reports/pending-orders.xlsx");
-        //sendMail(workbook);
-
-//        ByteArrayOutputStream bos = new ByteArrayOutputStream();
-//        workbook.write(bos);
-//        InputStream inputStream = new ByteArrayInputStream(bos.toByteArray());
-//        String body = "Attached is the pending orders report for " + new Date();
-//        JsonNode jsonNode = mailGunEmailService.sendComplexMessage("pending orders report", body, inputStream,
-//                "pending-orders.xlsx");
-//        logger.info("confirmation response from email: " + jsonNode.toString());
-
+        //sendMail(workbook, "pending orders report", "pending-orders.xlsx");
     }
 
-    @Scheduled(cron = "0 22 11 * * *") //every day 08:30AM
+    @Scheduled(cron = "0 45 9 * * *") //every day 08:30AM
     public void orderCountReport() throws Exception {
         logger.info("reportPendingOrders: ");
         List<Order> orderList = orderService.findOrdersDayBefore();
@@ -165,9 +155,6 @@ public class OrderReportingSchedular extends ReportingSchedular{
 
         Workbook workbook = new ExcelGenerator<OrderCount>().createXLS(orderCountList, new OrderCountDataImpl());
         createFile(workbook,"/Users/srinivasseri/ezshipp-reports/orders-count.xlsx");
-        //sendMail(workbook);
-
+        sendMail(workbook, "Order Count Report", "orders-count.xlsx");
     }
-
-
 }

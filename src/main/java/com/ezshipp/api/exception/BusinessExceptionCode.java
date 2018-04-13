@@ -5,6 +5,15 @@ package com.ezshipp.api.exception;
  */
 public enum BusinessExceptionCode {
 
+    /** Customer not found. */
+    CUSTOMER_NOT_FOUND("2001"),
+
+    /** sequence id not found. */
+    COUNTER_SEQ_ID_NOT_FOUND("5001"),
+
+    /** zone not found. */
+    ZONE_NOT_FOUND("5002"),
+
     /** The account is locked. */
     ACCOUNT_IS_LOCKED("262"),
 

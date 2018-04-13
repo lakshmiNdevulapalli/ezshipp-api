@@ -27,6 +27,8 @@ public class MailGunEmailService {
                     .queryString("from", FROM_USER)
                     .queryString("to", "srinivas.seri@ezshipp.com")
                     .queryString("cc", "pramodk@ezshipp.com")
+                    .queryString("cc", "srikanth.hotur@ezshipp.com")
+                    .queryString("cc", "swarna.ayyala@ezshipp.com")
                     //.queryString("bcc", "joe@example.com")
                     .queryString("subject", subject)
                     .queryString("text", body)

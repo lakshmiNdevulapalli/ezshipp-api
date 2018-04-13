@@ -13,6 +13,9 @@ public class BikerOrder {
     private String name;
     private String clientName;
     private long orderCount;
+    private long completedCount;
+    private boolean isCompleted;
+    //private List<String> completedList;
     private List<String> orderList;
     private Map<String, Integer> zonalOrders;
 }

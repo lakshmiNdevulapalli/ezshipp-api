@@ -12,6 +12,8 @@ import org.springframework.stereotype.Service;
 import javax.inject.Inject;
 import java.util.List;
 
+import static org.springframework.data.mongodb.core.query.Criteria.where;
+
 /**
  * Created by srinivasseri on 2/16/18.
  */
@@ -29,10 +31,17 @@ public class BikerService {
         return driverRepository.findAll();
     }
 
-    @Cacheable(value="Driver", key = "#driverId")
+    @Cacheable(value="driversCache", key = "#driverId")
     public Driver findByDriverId(String driverId) throws ServiceException {
         Query query = new Query();
         query.addCriteria(Criteria.where("_id").is(driverId));
         return mongoTemplate.findOne(query, Driver.class);
+    }
+
+    public List<Driver> findDriversByDepoIdAndAccStatus(String depoId, int accStatus) throws ServiceException   {
+        Query query = new Query();
+        query.addCriteria(where("depoId").is(depoId).andOperator(
+                where("acc_status").is(accStatus)));
+        return mongoTemplate.find(query, Driver.class,"drivers");
     }
 }

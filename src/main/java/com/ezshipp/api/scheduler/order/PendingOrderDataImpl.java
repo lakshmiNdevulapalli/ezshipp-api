@@ -55,11 +55,11 @@ public class PendingOrderDataImpl implements ExcelData<Order> {
 
     private Long formatPhoneNumber(String number)  {
         String formatted="";
-        if (number.startsWith("+91"))   {
+        if (number.trim().startsWith("+91"))   {
             formatted = number.substring(3, number.length());
             return Long.valueOf(formatted);
         }
-        return Long.valueOf(number);
+        return Long.valueOf(number.trim());
 
     }
 }
