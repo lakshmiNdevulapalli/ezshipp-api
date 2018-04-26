@@ -4,9 +4,11 @@ import com.ezshipp.api.document.Devices;
 import com.ezshipp.api.document.Driver;
 import com.ezshipp.api.document.Order;
 import com.ezshipp.api.document.Zone;
+import com.ezshipp.api.enums.DeviceTypeEnum;
 import com.ezshipp.api.exception.BusinessException;
 import com.ezshipp.api.exception.BusinessExceptionCode;
 import com.ezshipp.api.exception.ServiceException;
+import com.ezshipp.api.model.BikerOrder;
 import com.ezshipp.api.model.MatrixDistance;
 import com.ezshipp.api.notification.FCMNotification;
 import com.ezshipp.api.repositories.OrderRepository;
@@ -45,7 +47,7 @@ public class PostOrderCreation implements Runnable {
 
     private Order order;
 
-    public PostOrderCreation(Order order)   {
+    public void setOrder(Order order)   {
         this.order = order;
     }
 
@@ -65,6 +67,8 @@ public class PostOrderCreation implements Runnable {
 
             List<MatrixDistance> matrixDistanceList = fetchDrivers(pickupZone, order);
 
+
+
             orderRepository.save(order);
         } catch (BusinessException be)  {
 
@@ -75,7 +79,7 @@ public class PostOrderCreation implements Runnable {
         }
     }
 
-    protected Zone getZone(GeoJsonPoint geoJsonPoint) throws BusinessException, ServiceException {
+    private Zone getZone(GeoJsonPoint geoJsonPoint) throws BusinessException, ServiceException {
         Document geoJsonDbo = new Document();
 
         mongoTemplate.getConverter().write(geoJsonPoint, geoJsonDbo);
@@ -98,10 +102,9 @@ public class PostOrderCreation implements Runnable {
     private List<MatrixDistance> fetchDrivers(Zone zone, Order order) throws ServiceException    {
         List<Driver> driverList = bikerService.findDriversByDepoIdAndAccStatus(zone.getId(), 3);
         List<LatLng> LatLngList = new ArrayList<>();
-        LatLng pickupLocation = null;
         if (!driverList.isEmpty())  {
             LatLng driverLocation=null;
-            pickupLocation = new LatLng(order.getPickLocation().getLatitude(), order.getPickLocation().getLongitude());
+            LatLng pickupLocation = new LatLng(order.getPickLocation().getLatitude(), order.getPickLocation().getLongitude());
             for (Driver driver : driverList) {
                 if (driver.getLocation() != null)   {
                     driverLocation = new LatLng(driver.getLocation().getLatitude(), driver.getLocation().getLongitude());
@@ -111,7 +114,19 @@ public class PostOrderCreation implements Runnable {
 
             LatLng[] origins = LatLngList.toArray(new LatLng[LatLngList.size()]);
             List<MatrixDistance> matrixDistanceList = googleMapService.calculateDistance(origins, new LatLng[]{pickupLocation});
+            int i = 0;
+            List<BikerOrder> bikerOrderList = new ArrayList<>();
+            for (MatrixDistance matrixDistance : matrixDistanceList) {
+                BikerOrder bikerOrder = new BikerOrder();
+                bikerOrder.setOrderId(order.getOrderseqId());
+                bikerOrder.setDistance(matrixDistance.getDistance());
+                bikerOrder.setDuration(matrixDistance.getDuration());
+                bikerOrder.setDeviceId(driverList.get(i).getDevices().get(0).getDeviceId());
+                bikerOrder.setDeviceToken(driverList.get(i).getDevices().get(0).getDeviceToken());
+                i++;
+            }
             Collections.sort(matrixDistanceList);
+            //pushMessage(d);
             return matrixDistanceList;
         }
 
@@ -121,10 +136,11 @@ public class PostOrderCreation implements Runnable {
     private void pushMessage(Driver driver, Order order) throws Exception {
         Devices devices = driver.getDevices().get(0);
         String message = buildFCMMessage(devices.getDeviceToken(), order);
-        if (devices.getDeviceType() == 2)   {
+        if (devices.getDeviceType() == DeviceTypeEnum.ANDROID.ordinal())   {
             fcmNotification.pushFCMNotification(message);
         }
     }
+
     private String buildFCMMessage(String deviceToken, Order order)   {
         JSONObject json = new JSONObject();
         json.put("to",deviceToken.trim());
@@ -144,6 +160,4 @@ public class PostOrderCreation implements Runnable {
         json.put("collapse_key", "your_collapse_key");
         return json.toString();
     }
-
-
 }

@@ -44,4 +44,11 @@ public class BikerService {
                 where("acc_status").is(accStatus)));
         return mongoTemplate.find(query, Driver.class,"drivers");
     }
+
+    @Cacheable(value="driversCache", key = "#sessionToken")
+    public Driver findByDriverSessionToken(String sessionToken) throws ServiceException {
+        Query query = new Query();
+        query.addCriteria(Criteria.where("sessionToken").is(sessionToken));
+        return mongoTemplate.findOne(query, Driver.class);
+    }
 }

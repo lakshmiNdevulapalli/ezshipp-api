@@ -16,7 +16,13 @@ public class EzshippApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(EzshippApplication.class, args);
+
 	}
+
+//	@Bean
+//	public SubscribeDriverMessages subscribeDriverMessages()	{
+//		return new SubscribeDriverMessages();
+//	}
 
 //	/**
 //	 * API Key Filter. Used by the apiKeyFilterProxy.

@@ -6,11 +6,13 @@ import com.ezshipp.api.document.Order;
 import com.ezshipp.api.enums.OrderTypeEnum;
 import com.ezshipp.api.enums.PaymentTypeEnum;
 import com.ezshipp.api.exception.BusinessException;
+import com.ezshipp.api.exception.BusinessExceptionCode;
 import com.ezshipp.api.exception.ServiceException;
 import com.ezshipp.api.model.ClientOrder;
 import com.ezshipp.api.model.LapseTime;
 import com.ezshipp.api.model.MatrixDistance;
 import com.ezshipp.api.model.request.CreateOrderRequest;
+import com.ezshipp.api.model.request.NewOrderDetailsRequest;
 import com.ezshipp.api.repositories.OrderRepository;
 import com.ezshipp.api.responses.OrderResponse;
 import com.ezshipp.api.util.DateUtil;
@@ -25,6 +27,7 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import javax.inject.Inject;
 import java.util.*;
@@ -70,6 +73,9 @@ public class OrderService {
     @Inject
     private TaskExecutor taskExecutor;
 
+    @Inject
+    private PostOrderCreation postOrderCreation;
+
     public Order createOrder(CreateOrderRequest createOrderRequest) throws BusinessException, ServiceException  {
         Order order = createOrderRequest.toOrder();
         String orderSeqId = ORDER_SEQID_PREFIX + counterService.getSequence(ORDER_SEQ_ID);
@@ -85,14 +91,23 @@ public class OrderService {
 
         order = orderRepository.save(order);
 
-        taskExecutor.execute(new PostOrderCreation(order));
-
+        postOrderCreation.setOrder(order);
+        taskExecutor.execute(postOrderCreation);
 
         return order;
     }
 
+    public void newOrderDetails(NewOrderDetailsRequest newOrderDetailsRequest) throws BusinessException, ServiceException {
+        Driver driver = bikerService.findByDriverSessionToken(newOrderDetailsRequest.getSessionToken()) ;
+        if (driver == null) {
+            throw new BusinessException(BusinessExceptionCode.DRIVER_SESSION_EXPIRED) ;
+        } else  {
+            if (!CollectionUtils.isEmpty(driver.getNewapp_ids()))   {
 
+            }
+        }
 
+    }
 
     public void findGeoLocation() throws BusinessException, ServiceException   {
 //        List<org.springframework.data.geo.Point> points = new ArrayList<>();
@@ -178,7 +193,6 @@ public class OrderService {
                 Criteria.where("customerName").is(customerName));
         Query query = new Query(criteria);
 
-        //return centralPublicationOrders(false).getDocumentList();
         List<Order> orders = mongoTemplate.find(query, Order.class, ORDER_COLLECTION);
         setDriverData(orders);
         applyStatus(orders);
@@ -205,17 +219,24 @@ public class OrderService {
 
         Set<String> items = new HashSet<>();
         Set<String> duplicates = new HashSet<>();
+        Set<Order> duplicateSet = new HashSet<>();
+        double dupCOD = 0.00;
         for (Order order : orderList) {
-            if(!items.contains(order.getReceiverPhone() )) {
+            if(!items.contains(order.getReceiverPhone() ) && isCompleted(order.getStatus())) {
                 items.add(order.getReceiverPhone());
             } else  {
-                duplicates.add(order.getReceiverPhone());
+                if (isCompleted(order.getStatus())) {
+                    duplicates.add(order.getReceiverPhone());
+                    dupCOD = dupCOD + order.getSubtotal_amount();
+                    duplicateSet.add(order);
+                }
             }
         }
 
         OrderResponse orderResponse = new OrderResponse();
         orderResponse.setDocumentList(orderList);
         orderResponse.setCounts();
+        orderResponse.getCompletedOrderList().addAll(duplicateSet);
         if (onlyCount) {
             orderResponse.setDocumentList(Collections.emptyList());
         }
@@ -226,6 +247,8 @@ public class OrderService {
         System.out.println("cancelled size: " + orderResponse.getCancelledCount());
         System.out.println("new size: " + orderResponse.getNewCount());
         System.out.println("ongoing size: " + orderResponse.getOngoingCount());
+        System.out.println("COD: " + orderResponse.getCodTotal());
+        System.out.println("dupCOD: " + dupCOD);
 
         return orderResponse;
     }

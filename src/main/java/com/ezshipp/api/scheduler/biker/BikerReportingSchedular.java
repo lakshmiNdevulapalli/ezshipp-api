@@ -35,10 +35,10 @@ public class BikerReportingSchedular extends ReportingSchedular {
     private BikerService bikerService;
 
     //@Scheduled(cron = "0 57 23 * * *") // 1:30PM
-    @Scheduled(cron = "0 46 9 * * *") //every day 10:30PM
+    @Scheduled(cron = "0 55 22 * * *") //every day 10:30PM
     public void reportBikerPerformance() throws ServiceException {
         logger.info("reportBikerPerformance: ");
-        List<Order> orders = orderService.findOrdersDayBefore();
+        List<Order> orders = orderService.findAllOrders();
         Map<String, BikerOrder> bikerOrderMap = getDriverData(orders);
 
         Workbook workbook = new ExcelGenerator<BikerOrder>().createXLS(new ArrayList<>(bikerOrderMap.values()), new BikerPerformanceDataImpl());

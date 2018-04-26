@@ -29,3 +29,5 @@ sparkpost:
   recepients: srinivas.seri@ezshipp.com
 google:
   apikey: AIzaSyBelEh0cEBYDdkTonoS7bYhyu9RuOEC-kE
+logging:
+  file: /logs/service.log

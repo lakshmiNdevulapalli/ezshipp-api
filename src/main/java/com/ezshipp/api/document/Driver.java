@@ -1,5 +1,6 @@
 package com.ezshipp.api.document;
 
+import com.ezshipp.api.model.NewAppID;
 import lombok.Data;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -31,4 +32,5 @@ public class Driver implements Serializable {
     private int CurrentStatus;
     private Location location;
     private List<Devices> devices;
+    private List<NewAppID> newapp_ids;
 }

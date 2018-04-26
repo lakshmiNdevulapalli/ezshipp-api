@@ -80,9 +80,6 @@ public class QueryUtil {
         //Calendar current = Calendar.getInstance();
         Calendar toDate = Calendar.getInstance();
         toDate.setTimeZone(TimeZone.getTimeZone("Asia/Calcutta"));
-        toDate.set(Calendar.MONTH, Calendar.APRIL);
-        toDate.set(Calendar.YEAR, 2018);
-        toDate.set(Calendar.DAY_OF_MONTH, 07);
         toDate.set(Calendar.HOUR_OF_DAY, 23);
         toDate.set(Calendar.MINUTE, 59);
         toDate.set(Calendar.SECOND, 59);

@@ -29,10 +29,11 @@ public class MailGunEmailService {
                     .queryString("cc", "pramodk@ezshipp.com")
                     .queryString("cc", "srikanth.hotur@ezshipp.com")
                     .queryString("cc", "swarna.ayyala@ezshipp.com")
+                    .queryString("cc", "viswadhak@ezshipp.com")
                     //.queryString("bcc", "joe@example.com")
                     .queryString("subject", subject)
                     .queryString("text", body)
-                    .queryString("html", "<html>HTML version </html>")
+                    .queryString("html", "<html>" + body + "</html>")
                     .field("attachment", inputStream, ContentType.APPLICATION_OCTET_STREAM, fileName)
                     .asJson();
         } catch (UnirestException e) {

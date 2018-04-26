@@ -335,7 +335,7 @@ public enum BusinessExceptionCode {
     EPSILON_ADDRESS_UNDELIVERABLE("301"),
 
     /** CHIRPIFY: Epsilon is not able to load given campaign code. */
-    EPSILON_CAMPAIGN_CODE_NOT_FOUND("1403"),
+    DRIVER_SESSION_EXPIRED("1403"),
 
     /** CHIRPIFY: Epsilon is not able to load given campaign code. */
     EPSILON_CHIRPIFY_VALIDATION_ERROR("1404"),

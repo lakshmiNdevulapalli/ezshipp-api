@@ -19,14 +19,14 @@ import java.util.List;
 import java.util.Set;
 
 @Component
-public class OrderReportingSchedular extends ReportingSchedular{
+public class OrderReportingSchedular extends ReportingSchedular {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Inject
     private OrderService orderService;
 
-    @Scheduled(cron = "0 42 21 * * *") //every day 10:30PM
+    @Scheduled(cron = "0 54 22 * * *") //every day 10:30PM
     public void pendingOrdersReport() throws Exception {
         logger.info("reportPendingOrders: ");
         List<Order> orders = orderService.findAllPendingOrders();
@@ -39,7 +39,7 @@ public class OrderReportingSchedular extends ReportingSchedular{
         //sendMail(workbook, "pending orders report", "pending-orders.xlsx");
     }
 
-    @Scheduled(cron = "0 45 9 * * *") //every day 08:30AM
+    @Scheduled(cron = "0 20 14 * * *") //every day 08:30AM
     public void orderCountReport() throws Exception {
         logger.info("reportPendingOrders: ");
         List<Order> orderList = orderService.findOrdersDayBefore();

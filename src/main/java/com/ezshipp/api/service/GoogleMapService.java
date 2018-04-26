@@ -34,7 +34,7 @@ public class GoogleMapService {
     private ApplicationPropertyConfig applicationPropertyConfig;
 
     public List<MatrixDistance> calculateDistance(LatLng[] origins, LatLng[] destinations) throws ServiceException {
-        GeoApiContext context = new GeoApiContext().setApiKey(applicationPropertyConfig.getGoogleApiKey()).setQueryRateLimit(1);
+        GeoApiContext context = new GeoApiContext().setApiKey(applicationPropertyConfig.getGoogleApiKey()).setQueryRateLimit(10);
         List<MatrixDistance> matrixDistanceList = new ArrayList<>();
 
         try {
@@ -46,6 +46,8 @@ public class GoogleMapService {
                     .language(EN_LANGUAGE)
                     .await();
 
+//            System.out.println(origins[0]);
+//            System.out.println(destinations[0]);
 
             for (DistanceMatrixRow row : matrix.rows) {
                 if (row.elements.length > 0 && row.elements[0].status.equalsIgnoreCase(STATUS_OK)) {

@@ -1,18 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration debug="false" scan="true" scanPeriod="120 seconds">
+    <!--<conversionRule conversionWord="maskedMsg"-->
+                    <!--converterClass="ch.qos.logback.classic.pattern.ClassicConverter" />-->
     <!--<property name="LOG_PATH" value="/var/log" />-->
     <property name="LOG_PATH" value="/logs" />
     <property name="LOG_ARCHIVE" value="${LOG_PATH}/archive" />
     <timestamp key="timestamp-by-second" datePattern="yyyyMMdd'T'HHmmss"/>
     <appender name="Console-Appender" class="ch.qos.logback.core.ConsoleAppender">
         <layout>
-            <pattern>%msg%n</pattern>
+            <!--<pattern>[timestamp=%d{HH:mm:ss.SSS}] [thread="%thread"] [session="%X{session:-undefined}"] [request="%X{trace:-undefined}"] [level=%-5level] [logger=%logger{35}] [class=%class] [line=%line] %msg%n</pattern>-->
+            <pattern>[timestamp=%d{HH:mm:ss.SSS}] [thread="%thread"] [level=%-5level] [class=%class] [line=%line] %msg%n</pattern>
+
         </layout>
     </appender>
     <appender name="File-Appender" class="ch.qos.logback.core.FileAppender">
         <file>${LOG_PATH}/logfile-${timestamp-by-second}.log</file>
         <encoder>
-            <pattern>%msg%n</pattern>
+            <!--<pattern>%msg%n</pattern>-->
+            <!--<pattern>[timestamp=%d{HH:mm:ss.SSS}] [thread="%thread"] [session="%X{session:-undefined}"] [request="%X{trace:-undefined}"] [level=%-5level] [logger=%logger{35}] [class=%class] [line=%line] %msg%n</pattern>-->
+            <pattern>[timestamp=%d{HH:mm:ss.SSS}] [thread="%thread"] [level=%-5level] [class=%class] [line=%line] %msg%n</pattern>
+
             <outputPatternAsHeader>true</outputPatternAsHeader>
         </encoder>
     </appender>
@@ -24,7 +31,8 @@
             <totalSizeCap>1KB</totalSizeCap>
         </rollingPolicy>
         <encoder>
-            <pattern>%msg%n</pattern>
+            <!--<pattern>[timestamp=%d{HH:mm:ss.SSS}] [thread="%thread"] [session="%X{session:-undefined}"] [request="%X{trace:-undefined}"] [level=%-5level] [logger=%logger{35}] [class=%class] [line=%line] %msg%n</pattern>-->
+            <pattern>[timestamp=%d{HH:mm:ss.SSS}] [thread="%thread"] [level=%-5level] [class=%class] [line=%line] %msg%n</pattern>
         </encoder>
     </appender>
     <appender name="Async-Appender" class="ch.qos.logback.classic.AsyncAppender">
@@ -37,8 +45,15 @@
         <appender-ref ref="Async-Appender" />
     </logger>
 
+    <logger name="com.google.maps" level="error" additivity="false">
+        <appender-ref ref="Console-Appender" />
+        <appender-ref ref="File-Appender" />
+        <appender-ref ref="Async-Appender" />
+    </logger>
+
     <root level="info">
         <appender-ref ref="Console-Appender"/>
+        <appender-ref ref="File-Appender"/>
     </root>
 
 </configuration>

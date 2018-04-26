@@ -24,7 +24,6 @@ import java.util.List;
 @Api(value = "/api/v1/orders", description = "a rest service")
 @RequestMapping(path = "/api/v1/orders")
 @CrossOrigin(origins = "http://localhost:4200", maxAge = 3600)
-
 public class OrderController implements ControllerConstants {
 
     @Inject
@@ -34,12 +33,8 @@ public class OrderController implements ControllerConstants {
     OrderService orderService;
 
     @RequestMapping(method=RequestMethod.GET)
-    //public List<Order> getAllOrders() throws ServiceException {
-    public OrderResponse getAllOrders() throws BusinessException, ServiceException {
-        //return orderService.findAllOrders();
-        //return orderService.centralPublicationOrders(true);
-        orderService.findGeoLocation();
-        return new OrderResponse();
+    public List<Order> getAllOrders() throws BusinessException,ServiceException {
+        return orderService.findAllOrders();
     }
 
     @RequestMapping(method= RequestMethod.POST)
