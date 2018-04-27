@@ -16,7 +16,8 @@ apply plugin: 'io.spring.dependency-management'
 
 bootJar {
     baseName = 'ezshipp-api-service'
-    version = '0.1.1'
+    version = '0.0.2'
+    jvmArgs = '-Dspring.profles.active=dev -Xms256m -Xmx1024m'
 }
 
 repositories {

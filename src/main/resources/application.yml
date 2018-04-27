@@ -31,3 +31,9 @@ google:
   apikey: AIzaSyBelEh0cEBYDdkTonoS7bYhyu9RuOEC-kE
 logging:
   file: /logs/service.log
+reports:
+  path: ~/Documents/ezshipp-reports
+mailgun:
+  apikey: key-0d5ef51597cd2abdcc2687272aeb7a4f
+  domainname: www.ezshipp.com
+  fromuser: no-reply@ezshipp.com

@@ -34,8 +34,8 @@ public class BikerReportingSchedular extends ReportingSchedular {
     @Inject
     private BikerService bikerService;
 
-    //@Scheduled(cron = "0 57 23 * * *") // 1:30PM
-    @Scheduled(cron = "0 55 22 * * *") //every day 10:30PM
+
+    @Scheduled(cron = CRON_JOB_11_PM)
     public void reportBikerPerformance() throws ServiceException {
         logger.info("reportBikerPerformance: ");
         List<Order> orders = orderService.findAllOrders();

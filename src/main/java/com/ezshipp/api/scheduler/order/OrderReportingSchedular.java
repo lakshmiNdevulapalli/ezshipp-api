@@ -1,5 +1,6 @@
 package com.ezshipp.api.scheduler.order;
 
+import com.ezshipp.api.config.ApplicationPropertyConfig;
 import com.ezshipp.api.document.Order;
 import com.ezshipp.api.model.OrderCount;
 import com.ezshipp.api.poi.ExcelGenerator;
@@ -26,7 +27,11 @@ public class OrderReportingSchedular extends ReportingSchedular {
     @Inject
     private OrderService orderService;
 
-    @Scheduled(cron = "0 54 22 * * *") //every day 10:30PM
+    @Inject
+    ApplicationPropertyConfig applicationPropertyConfig;
+
+    @Scheduled(cron = "0 57 12 * * *")
+    @Scheduled(cron = CRON_JOB_10_PM)
     public void pendingOrdersReport() throws Exception {
         logger.info("reportPendingOrders: ");
         List<Order> orders = orderService.findAllPendingOrders();
@@ -35,11 +40,11 @@ public class OrderReportingSchedular extends ReportingSchedular {
 //                .collect(Collectors.toList());
 
         Workbook workbook = new ExcelGenerator<Order>().createXLS(orders, new PendingOrderDataImpl());
-        createFile(workbook,"/Users/srinivasseri/ezshipp-reports/pending-orders.xlsx");
-        //sendMail(workbook, "pending orders report", "pending-orders.xlsx");
+        createFile(workbook,applicationPropertyConfig + "/pending-orders.xlsx");
+        sendMail(workbook, "pending orders report", "pending-orders.xlsx");
     }
 
-    @Scheduled(cron = "0 20 14 * * *") //every day 08:30AM
+    @Scheduled(cron = CRON_JOB_12_PM) //every day 08:30AM
     public void orderCountReport() throws Exception {
         logger.info("reportPendingOrders: ");
         List<Order> orderList = orderService.findOrdersDayBefore();

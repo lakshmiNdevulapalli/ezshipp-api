@@ -90,7 +90,7 @@ public class OrderController implements ControllerConstants {
 
     @RequestMapping(method=RequestMethod.PUT, value="/{id}")
     public Order update(@PathVariable String id, @RequestBody Order order) throws BusinessException, ServiceException {
-        Order existingOrder = orderRepository.findById(id).get();
+        Order existingOrder = orderRepository.findByOrderId(id);
         existingOrder.setOrderseqId(order.getOrderseqId());
         existingOrder.setOrder_datetime(order.getOrder_datetime());
         existingOrder.setStatus(order.getStatus());
