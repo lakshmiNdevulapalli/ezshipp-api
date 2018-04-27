@@ -30,7 +30,6 @@ public class OrderReportingSchedular extends ReportingSchedular {
     @Inject
     ApplicationPropertyConfig applicationPropertyConfig;
 
-    @Scheduled(cron = "0 57 12 * * *")
     @Scheduled(cron = CRON_JOB_10_PM)
     public void pendingOrdersReport() throws Exception {
         logger.info("reportPendingOrders: ");
