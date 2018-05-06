@@ -1,0 +1,93 @@
+package com.ezshipp.api.controllers;
+
+import com.ezshipp.api.document.Customer;
+import com.ezshipp.api.document.Driver;
+import com.ezshipp.api.repositories.DriverRepository;
+import com.ezshipp.api.service.BikerService;
+import io.swagger.annotations.Api;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.*;
+
+import javax.inject.Inject;
+import java.util.List;
+import java.util.Optional;
+
+@RestController
+@Api(value = "/api/v1/drivers", description = "Bikers service")
+@RequestMapping(path = "/api/v1/drivers")
+@CrossOrigin(origins = "http://localhost:4200", maxAge = 3600)
+public class DriverController {
+
+    @Autowired
+    DriverRepository driverRepository;
+
+    @Inject
+    BikerService bikerService;
+
+    @RequestMapping(method=RequestMethod.GET)
+    public List<Driver> getDrivers(){
+        return driverRepository.findAll();
+    }
+
+    @RequestMapping(method = RequestMethod.GET, value = "/signup")
+    public String signupDrivers(Model model) {
+        model.addAttribute("driverSignUpForm", new Driver());
+        //return driverRepository.findAll();
+        return "Driver signup";
+    }
+
+    @RequestMapping(method = RequestMethod.POST, value = "/signup")
+    public String signupDrivers(@ModelAttribute("driverSignupForm") Driver driverSignupForm, BindingResult bindingResult, Model model){
+        if(bindingResult.hasErrors()){
+            return "Driver signup";
+        }
+        driverRepository.save(driverSignupForm);
+        return "redirect: /driversHome";
+    }
+
+    @RequestMapping(method = RequestMethod.GET, value = "/{id}")
+    public Driver getDriverId(@PathVariable String id){
+
+        return driverRepository.findDriverBy_id(id).get();
+    }
+
+    @RequestMapping(method = RequestMethod.GET, value = "/driverlogin")
+    public String driverLogin(Model model, String errorMessage){
+        if(errorMessage != null){
+            model.addAttribute("Username or Password is Invalid, Please check");
+        }
+        return "driverlogin";
+    }
+    @RequestMapping(method = RequestMethod.PUT, value = "/{id}")
+    public Driver updateDriver(@PathVariable String id, @RequestBody Driver driver){
+        Driver driver1 = driverRepository.findByDriverseqId(id);
+        driver1.setDriverseqId(driver.getDriverseqId());
+        driver1.setName(driver.getName());
+        driver1.setLname(driver.getLname());
+        driver1.setEmail(driver.getEmail());
+        driver1.setPhone(driver.getPhone());
+        driver1.setAcc_status(driver.getAcc_status());
+        driver1.setBusinessid(driver.getBusinessid());
+        driver1.setCurrentStatus(driver.getCurrentStatus());
+        driver1.setDepoId(driver.getDepoId());
+        driver1.setDatetime(driver.getDatetime());
+        driver1.setDevices(driver.getDevices());
+        driver1.setLocation(driver.getLocation());
+        driver1.setNewapp_ids(driver.getNewapp_ids());
+        driver1.setStatus(driver.getStatus());
+        driver1.setSessionToken(driver.getSessionToken());
+        driver1.setProfilePic(driver.getProfilePic());
+        driverRepository.save(driver1);
+        return driver;
+    }
+
+    @RequestMapping(method = RequestMethod.DELETE, value = "/{id}")
+    public String delete(@PathVariable String id){
+        Driver driver = driverRepository.findDriverBy_id(id).get();
+        driverRepository.delete(driver);
+        return "Driver Deleted";
+    }
+}
